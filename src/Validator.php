@@ -6,6 +6,11 @@ use Doctrine\Common\Inflector\Inflector;
 class Validator
 {
 
+    const SAVE   = 'save';
+    const CREATE = 'create';
+    const UPDATE = 'update';
+    const REMOVE = 'remove';
+
     protected static $_validations = [
         'validates_presence_of',
         'validates_size_of',
@@ -66,13 +71,16 @@ class Validator
 
     protected function skipValidation($field, $options)
     {
+        if (static::REMOVE == $this->model->recordState() && static::REMOVE != @$options['on']) {
+            return true;
+        }
         if (isset($options['if']) && !$this->model->$options['if']) {
             return true;
         }
         if (isset($options['unless']) && $this->model->$options['unless']) {
             return true;
         }
-        if (@$options['on'] && 'save' != $options['on']) {
+        if (@$options['on'] && static::SAVE != $options['on']) {
             return $this->model->recordState() != $options['on'];
         }
         if (@$options['allow_nil'] && null === $this->model->$field) {
