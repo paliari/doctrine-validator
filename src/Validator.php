@@ -61,9 +61,11 @@ class Validator
 
     protected function validates($validation_method, $attributes = [])
     {
-        foreach ($attributes as $attribute) {
-            $options = (array)$attribute;
-            $field   = $attribute[0];
+        foreach ($attributes as $field => $options) {
+            if (is_string($options)) {
+                $field = $options;
+                $options = [];
+            }
             if (!$this->skipValidation($field, $options)) {
                 $this->$validation_method($field, $options);
             }

@@ -36,11 +36,11 @@ class MappingsValidates
             $type = $map['type'];
             if (!@$map['id']) {
                 if (@$map['length']) {
-                    $length[] = [$field, 'maximum' => $map['length'], 'allow_blank' => $map['nullable']];
+                    $length[$field] = ['maximum' => $map['length'], 'allow_blank' => $map['nullable']];
                 }
                 $is_int = in_array($type, static::$_type_int);
                 if ($is_int || in_array($type, static::$_type_numeric)) {
-                    $numericality[] = [$field, 'only_integer' => $is_int, 'allow_blank' => $map['nullable']];
+                    $numericality[$field] = ['only_integer' => $is_int, 'allow_blank' => $map['nullable']];
                 }
             }
         }
