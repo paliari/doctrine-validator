@@ -156,25 +156,16 @@ trait TraitValidatorModel
         }
     }
 
-    protected function beforeValidation()
-    {
-    }
-
     /**
      * @return bool
      */
     protected function _validate()
     {
-        $this->beforeValidation();
+        $this->_defaultValidates();
         $this->_doValidation('before');
         $validator = new Validator($this);
         $validator->validate();
-        $this->afterValidation();
         $this->_doValidation('after');
-    }
-
-    protected function afterValidation()
-    {
     }
 
     protected function _defaultValidates()
@@ -205,7 +196,7 @@ trait TraitValidatorModel
      */
     public function recordState()
     {
-        return $this->record_state;
+        return $this->record_state ?: Validator::CREATE;
     }
 
     /**
