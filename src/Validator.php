@@ -34,7 +34,7 @@ class Validator
     ];
 
     /**
-     * @var TraitValidatorModel
+     * @var InterfaceModel
      */
     protected $model;
 

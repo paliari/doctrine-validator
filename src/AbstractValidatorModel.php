@@ -1,7 +1,7 @@
 <?php
 namespace Paliari\Doctrine;
 
-abstract class AbstractValidatorModel
+abstract class AbstractValidatorModel implements InterfaceModel
 {
 
     use TraitValidatorModel;
