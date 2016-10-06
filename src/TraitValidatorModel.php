@@ -105,6 +105,15 @@ trait TraitValidatorModel
     {
     }
 
+    protected function _defaultValidates()
+    {
+        $length       = MappingsValidates::getDefaults(static::className(), 'validates_length_of');
+        $numericality = MappingsValidates::getDefaults(static::className(), 'validates_numericality_of');
+
+        static::$validates_length_of       = array_merge($length, static::$validates_length_of);
+        static::$validates_numericality_of = array_merge($numericality, static::$validates_numericality_of);
+    }
+
     /**
      * @return bool
      */
@@ -128,6 +137,11 @@ trait TraitValidatorModel
     public static function getEm()
     {
         throw new \Exception('Method "getEm" not be implemented!');
+    }
+
+    public static function className()
+    {
+        return get_called_class();
     }
 
 }
