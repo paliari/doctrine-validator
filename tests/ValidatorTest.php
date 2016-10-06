@@ -277,6 +277,10 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
             ['exclusionOf', 'name', ['in' => ['a']], 'a', false],
             ['exclusionOf', 'name', ['within' => ['b']], 'a', true],
             ['exclusionOf', 'name', ['within' => ['a']], 'a', false],
+            ['formatOf', 'email', ['with' => 'email'], 'aa@mail.com', true],
+            ['formatOf', 'email', ['with' => 'email'], 'aa@.com', false],
+            ['formatOf', 'name', ['with' => 'url'], 'http://paliari.com', true],
+            ['formatOf', 'name', ['with' => 'url'], 'paliari.com', false],
         ];
     }
 
