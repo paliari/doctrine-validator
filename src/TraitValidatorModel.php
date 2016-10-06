@@ -26,6 +26,78 @@ trait TraitValidatorModel
     protected static $validates_custom          = [];
 
     /**
+     * @return array
+     */
+    public static function getValidatesPresenceOf()
+    {
+        return static::$validates_presence_of;
+    }
+
+    /**
+     * @return array
+     */
+    public static function getValidatesSizeOf()
+    {
+        return static::$validates_size_of;
+    }
+
+    /**
+     * @return array
+     */
+    public static function getValidatesLengthOf()
+    {
+        return static::$validates_length_of;
+    }
+
+    /**
+     * @return array
+     */
+    public static function getValidatesInclusionOf()
+    {
+        return static::$validates_inclusion_of;
+    }
+
+    /**
+     * @return array
+     */
+    public static function getValidatesExclusionOf()
+    {
+        return static::$validates_exclusion_of;
+    }
+
+    /**
+     * @return array
+     */
+    public static function getValidatesFormatOf()
+    {
+        return static::$validates_format_of;
+    }
+
+    /**
+     * @return array
+     */
+    public static function getValidatesNumericalityOf()
+    {
+        return static::$validates_numericality_of;
+    }
+
+    /**
+     * @return array
+     */
+    public static function getValidatesUniquenessOf()
+    {
+        return static::$validates_uniqueness_of;
+    }
+
+    /**
+     * @return array
+     */
+    public static function getValidatesCustom()
+    {
+        return static::$validates_custom;
+    }
+
+    /**
      * @var ValidatorErrors
      */
     public $errors;
@@ -109,9 +181,15 @@ trait TraitValidatorModel
     {
         $length       = MappingsValidates::getDefaults(static::className(), 'validates_length_of');
         $numericality = MappingsValidates::getDefaults(static::className(), 'validates_numericality_of');
-
         static::$validates_length_of       = array_merge($length, static::$validates_length_of);
         static::$validates_numericality_of = array_merge($numericality, static::$validates_numericality_of);
+    }
+
+    public function isValid()
+    {
+        $this->_validate();
+
+        return $this->errors->isValid();
     }
 
     /**
