@@ -53,7 +53,8 @@ class Validator
     {
         foreach (static::$_validations as $validation) {
             $validation_method = Inflector::camelize(str_replace('validates_', '', $validation));
-            $this->validates($validation_method, $this->model->$validation);
+            $get_method_name   = 'get' . Inflector::camelize($validation);
+            $this->validates($validation_method, $this->model->$get_method_name());
         }
 
     }
@@ -262,7 +263,7 @@ class Validator
     protected function checkFilterVar($value, $filter)
     {
         if ($filter = static::$_validate_filters[$filter]) {
-            return null === filter_var($value, $filter, FILTER_NULL_ON_FAILURE);
+            return null !== filter_var($value, $filter, FILTER_NULL_ON_FAILURE);
         }
 
         return 1 === preg_match($filter, $value);
