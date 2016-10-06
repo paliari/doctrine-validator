@@ -155,6 +155,37 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
         ];
     }
 
+    /**
+     * @dataProvider dataProviderComparatorThan
+     */
+    public function testComparatorThan($comparator, $value, $than, $expected)
+    {
+        $res = $this->invokeProtectedMethod('comparatorThan', [$comparator, $value, $than]);
+        $this->assertEquals($expected, $res);
+    }
+
+    public function dataProviderComparatorThan()
+    {
+        return [
+            ['greater_than', 2, 1, true],
+            ['greater_than', 1, 2, false],
+            ['greater_than', 1, 1, false],
+            ['greater_than_or_equal_to', 2, 1, true],
+            ['greater_than_or_equal_to', 1, 2, false],
+            ['greater_than_or_equal_to', 1, 1, true],
+            ['less_than', 2, 1, false],
+            ['less_than', 1, 2, true],
+            ['less_than', 1, 1, false],
+            ['less_than_or_equal_to', 2, 1, false],
+            ['less_than_or_equal_to', 1, 2, true],
+            ['less_than_or_equal_to', 1, 1, true],
+            ['equal_to', 1, 1, true],
+            ['equal_to', 2, 1, false],
+            ['other_than', 1, 1, false],
+            ['other_than', 2, 1, true],
+        ];
+    }
+
     public function doTestMethod($method, $value, $expected)
     {
         $res = $this->invokeProtectedMethod($method, [$value]);
