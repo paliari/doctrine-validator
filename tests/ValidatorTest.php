@@ -297,6 +297,8 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
             ['numericalityOf', 'value', [], '11a', false],
             ['numericalityOf', 'value', [], '', false],
             ['numericalityOf', 'value', [], null, false],
+            ['custom', 'count', [], 0, true],
+            ['custom', 'count', [], 20, false],
         ];
     }
 
