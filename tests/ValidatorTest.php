@@ -33,10 +33,7 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
      */
     public function testIsBlank($value, $expected)
     {
-        $method = $this->reflection->getMethod('isBlank');
-        $method->setAccessible(true);
-        $res = $method->invokeArgs($this->validator, [$value]);
-        $this->assertEquals($expected, $res);
+        $this->doTestMethod('isBlank', $value, $expected);
     }
 
     public function dataProviderIsBlank()
@@ -56,6 +53,79 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
             [' ', true],
             ['      ', true],
         ];
+    }
+
+    /**
+     * @param mixed $value
+     * @param bool  $expected
+     *
+     * @dataProvider dataProviderIsInteger
+     */
+    public function testIsInteger($value, $expected)
+    {
+        $this->doTestMethod('isInteger', $value, $expected);
+    }
+
+    public function dataProviderIsInteger()
+    {
+        return [
+            ['.', false],
+            ['a', false],
+            ['a1', false],
+            ['1a', false],
+            ['1e', false],
+            ['0001', false],
+            [9999999999999999999, false],
+            [999999999999999999, true],
+            ['0', true],
+            ['1', true],
+            ['999', true],
+            [1, true],
+            [0, true],
+            [00001, true],
+            [00000, true],
+        ];
+    }
+
+    /**
+     * @param mixed $value
+     * @param bool  $expected
+     *
+     * @dataProvider dataProviderIsNumber
+     */
+    public function testIsNumber($value, $expected)
+    {
+        $this->doTestMethod('isNumber', $value, $expected);
+    }
+
+    public function dataProviderIsNumber()
+    {
+        return [
+            ['.', false],
+            ['a', false],
+            ['a1', false],
+            ['1a', false],
+            ['', false],
+            ['0001', true],
+            [0.0, true],
+            [1.0000, true],
+            ['0', true],
+            ['0.0', true],
+            ['1', true],
+            ['999', true],
+            [1, true],
+            [0, true],
+            [00001, true],
+            [00000, true],
+        ];
+    }
+
+    public function doTestMethod($method, $value, $expected)
+    {
+        $method = $this->reflection->getMethod($method);
+        $method->setAccessible(true);
+        $res = $method->invokeArgs($this->validator, [$value]);
+        $this->assertEquals($expected, $res);
     }
 
 }
