@@ -248,6 +248,44 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
         ];
     }
 
+    /**
+     * @dataProvider dataProviderValidateOf
+     */
+    public function testValidateOf($method, $field, $options, $value, $expected)
+    {
+        $this->model->$field = $value;
+        $this->validator->$method($field, $options);
+        $this->assertEquals($expected, $this->model->errors->isValid());
+    }
+
+    public function dataProviderValidateOf()
+    {
+        return [
+            ['lengthOf', 'name', ['minimum' => 1], 'aa', true],
+            ['lengthOf', 'name', ['minimum' => 1], 'a', true],
+            ['lengthOf', 'name', ['minimum' => 10], 'aa', false],
+            ['lengthOf', 'name', ['maximum' => 10], 'aa', true],
+            ['lengthOf', 'name', ['maximum' => 2], 'aa', true],
+            ['lengthOf', 'name', ['maximum' => 2], 'aaa', false],
+            ['lengthOf', 'name', ['is' => 2], 'aa', true],
+            ['lengthOf', 'name', ['is' => 2], 'aaa', false],
+            ['lengthOf', 'name', ['in' => [2, 4]], 'aaa', true],
+            ['lengthOf', 'name', ['in' => [2, 4]], 'aaa', true],
+            ['lengthOf', 'name', ['in' => [2, 4]], 'aa', true],
+            ['lengthOf', 'name', ['in' => [2, 4]], 'aaaa', true],
+            ['lengthOf', 'name', ['in' => [2, 4]], 'a', false],
+            ['lengthOf', 'name', ['in' => [2, 4]], null, false],
+            ['lengthOf', 'name', ['in' => [2, 4]], 'aaaaa', false],
+            ['lengthOf', 'name', ['within' => [2, 4]], 'aaa', true],
+            ['lengthOf', 'name', ['within' => [2, 4]], 'aaa', true],
+            ['lengthOf', 'name', ['within' => [2, 4]], 'aa', true],
+            ['lengthOf', 'name', ['within' => [2, 4]], 'aaaa', true],
+            ['lengthOf', 'name', ['within' => [2, 4]], 'a', false],
+            ['lengthOf', 'name', ['within' => [2, 4]], null, false],
+            ['lengthOf', 'name', ['within' => [2, 4]], 'aaaaa', false],
+        ];
+    }
+
     public function doTestMethod($method, $args, $expected)
     {
         $res = $this->invokeProtectedMethod($method, $args);
