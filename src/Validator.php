@@ -278,6 +278,9 @@ class Validator
         if (is_string($value)) {
             $value = trim($value);
         }
+        if ('0' == $value) {
+            return false;
+        }
 
         return empty($value);
     }
