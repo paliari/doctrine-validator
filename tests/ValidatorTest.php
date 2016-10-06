@@ -281,6 +281,11 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
             ['formatOf', 'email', ['with' => 'email'], 'aa@.com', false],
             ['formatOf', 'name', ['with' => 'url'], 'http://paliari.com', true],
             ['formatOf', 'name', ['with' => 'url'], 'paliari.com', false],
+            ['formatOf', 'name', ['with' => '/\d/'], '001', true],
+            ['formatOf', 'name', ['with' => '/\d/'], 'a', false],
+            ['formatOf', 'name', ['with' => '/\D/'], '99', false],
+            ['formatOf', 'name', ['with' => '/\D/'], 'aa', true],
+            ['formatOf', 'name', ['without' => 'url'], 'adfasdsa', true],
         ];
     }
 
