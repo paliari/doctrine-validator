@@ -267,6 +267,12 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
             ['lengthOf', 'name', ['within' => [2, 4]], 'a', false],
             ['lengthOf', 'name', ['within' => [2, 4]], null, false],
             ['lengthOf', 'name', ['within' => [2, 4]], 'aaaaa', false],
+            ['sizeOf', 'name', ['within' => [2, 4]], null, false],
+            ['sizeOf', 'name', ['within' => [2, 4]], 'aaaaa', false],
+            ['inclusionOf', 'name', ['within' => ['a']], 'a', true],
+            ['inclusionOf', 'name', ['within' => ['b']], 'a', false],
+            ['inclusionOf', 'name', ['in' => ['a']], 'a', true],
+            ['inclusionOf', 'name', ['in' => ['b']], 'a', false],
         ];
     }
 
