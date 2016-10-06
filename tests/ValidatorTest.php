@@ -230,6 +230,24 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
         ];
     }
 
+    /**
+     * @dataProvider dataProviderPresenceOf
+     */
+    public function testPresenceOf($field, $value, $expected)
+    {
+        $this->model->$field = $value;
+        $this->validator->presenceOf($field, []);
+        $this->assertEquals($expected, $this->model->errors->isValid());
+    }
+
+    public function dataProviderPresenceOf()
+    {
+        return [
+            ['name', 'a', true],
+            ['name', '', false],
+        ];
+    }
+
     public function doTestMethod($method, $args, $expected)
     {
         $res = $this->invokeProtectedMethod($method, $args);
