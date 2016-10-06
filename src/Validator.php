@@ -261,8 +261,8 @@ class Validator
      */
     protected function checkFilterVar($value, $filter)
     {
-        if ($filter = static::$_validate_filters[$filter]) {
-            return null !== filter_var($value, $filter, FILTER_NULL_ON_FAILURE);
+        if (static::$_validate_filters[$filter]) {
+            return null !== filter_var($value, static::$_validate_filters[$filter], FILTER_NULL_ON_FAILURE);
         }
 
         return 1 === preg_match($filter, $value);
