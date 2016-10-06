@@ -125,11 +125,8 @@ class Validator
         $size    = mb_strlen($this->model->$field, 'UTF-8');
         $minimum = @$options['minimum'];
         $maximum = @$options['maximum'];
-        if (isset($options['within']) && $options['within']) {
-            list($minimum, $maximum) = $options['within'];
-        }
-        if (isset($options['in']) && $options['in']) {
-            list($minimum, $maximum) = $options['in'];
+        if ($in = @$options['within'] ?: @$options['in']) {
+            list($minimum, $maximum) = $in;
         }
         if ($minimum && $size < $minimum) {
             $this->add($field, $this->getMessage($options, 'too_short'), $minimum);
