@@ -33,7 +33,7 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
      */
     public function testIsBlank($value, $expected)
     {
-        $this->doTestMethod('isBlank', $value, $expected);
+        $this->doTestMethod('isBlank', [$value], $expected);
     }
 
     public function dataProviderIsBlank()
@@ -63,7 +63,7 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
      */
     public function testIsInteger($value, $expected)
     {
-        $this->doTestMethod('isInteger', $value, $expected);
+        $this->doTestMethod('isInteger', [$value], $expected);
     }
 
     public function dataProviderIsInteger()
@@ -95,7 +95,7 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
      */
     public function testIsNumber($value, $expected)
     {
-        $this->doTestMethod('isNumber', $value, $expected);
+        $this->doTestMethod('isNumber', [$value], $expected);
     }
 
     public function dataProviderIsNumber()
@@ -125,8 +125,7 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
      */
     public function testCheckFilterVar($value, $filter, $expected)
     {
-        $res = $this->invokeProtectedMethod('checkFilterVar', [$value, $filter]);
-        $this->assertEquals($expected, $res);
+        $this->doTestMethod('checkFilterVar', [$value, $filter], $expected);
     }
 
     public function dataProviderCheckFilterVar()
@@ -160,8 +159,7 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
      */
     public function testComparatorThan($comparator, $value, $than, $expected)
     {
-        $res = $this->invokeProtectedMethod('comparatorThan', [$comparator, $value, $than]);
-        $this->assertEquals($expected, $res);
+        $this->doTestMethod('comparatorThan', [$comparator, $value, $than], $expected);
     }
 
     public function dataProviderComparatorThan()
@@ -186,9 +184,9 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
         ];
     }
 
-    public function doTestMethod($method, $value, $expected)
+    public function doTestMethod($method, $args, $expected)
     {
-        $res = $this->invokeProtectedMethod($method, [$value]);
+        $res = $this->invokeProtectedMethod($method, $args);
         $this->assertEquals($expected, $res);
     }
 
