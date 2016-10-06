@@ -56,14 +56,13 @@ class Validator
             $get_method_name   = 'get' . Inflector::camelize($validation);
             $this->validates($validation_method, $this->model->$get_method_name());
         }
-
     }
 
     protected function validates($validation_method, $attributes = [])
     {
         foreach ($attributes as $field => $options) {
             if (is_string($options)) {
-                $field = $options;
+                $field   = $options;
                 $options = [];
             }
             if (!$this->skipValidation($field, $options)) {
