@@ -120,6 +120,41 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
         ];
     }
 
+    /**
+     * @dataProvider dataProviderCheckFilterVar
+     */
+    public function testCheckFilterVar($value, $filter, $expected)
+    {
+        $res = $this->invokeProtectedMethod('checkFilterVar', [$value, $filter]);
+        $this->assertEquals($expected, $res);
+    }
+
+    public function dataProviderCheckFilterVar()
+    {
+        return [
+            [true, 'boolean', true],
+            [false, 'boolean', true],
+            ['false', 'boolean', true],
+            ['true', 'boolean', true],
+            ['on', 'boolean', true],
+            ['off', 'boolean', true],
+            [null, 'boolean', true],
+            [[], 'boolean', false],
+            ['aa@aaa.aa', 'email', true],
+            ['aa@', 'email', false],
+            ['aa@.a', 'email', false],
+            ['aa@a..a', 'email', false],
+            ['0.0', 'float', true],
+            ['', 'float', false],
+            ['0', 'integer', true],
+            [0, 'integer', true],
+            ['127.0.0.1', 'ip', true],
+            ['127.0.0.256', 'ip', false],
+            ['http://paliari.com', 'url', true],
+            ['paliari.com', 'url', false],
+        ];
+    }
+
     public function doTestMethod($method, $value, $expected)
     {
         $res = $this->invokeProtectedMethod($method, [$value]);
