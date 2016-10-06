@@ -1,10 +1,11 @@
 <?php
+use Paliari\Doctrine\Validator as V;
 
 class ValidatorTest extends \PHPUnit\Framework\TestCase
 {
 
     /**
-     * @var \Paliari\Doctrine\Validator
+     * @var V
      */
     private $validator;
 
@@ -18,11 +19,17 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
      */
     private $reflection;
 
+    /**
+     * @var ReflectionClass
+     */
+    private $reflection_model;
+
     public function setUp()
     {
-        $this->model      = new MyModel();
-        $this->validator  = new \Paliari\Doctrine\Validator($this->model);
-        $this->reflection = new ReflectionClass($this->validator);
+        $this->model            = new MyModel();
+        $this->validator        = new V($this->model);
+        $this->reflection       = new ReflectionClass($this->validator);
+        $this->reflection_model = new ReflectionClass($this->model);
     }
 
     /**
@@ -181,6 +188,45 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
             ['equal_to', 2, 1, false],
             ['other_than', 1, 1, false],
             ['other_than', 2, 1, true],
+        ];
+    }
+
+    /**
+     * @dataProvider dataProviderSkipValidation
+     */
+    public function testSkipValidation($field, $options, $values, $state, $expected)
+    {
+        foreach ($values as $k => $v) {
+            $this->model->$k = $v;
+        }
+        $p = $this->reflection_model->getProperty('record_state');
+        $p->setAccessible(true);
+        $p->setValue($this->model, $state);
+        $this->doTestMethod('skipValidation', [$field, $options], $expected);
+    }
+
+    public function dataProviderSkipValidation()
+    {
+        return [
+            ['name', [], [], V::CREATE, false],
+            ['name', ['on' => V::REMOVE], [], V::REMOVE, false],
+            ['name', ['on' => V::REMOVE], [], V::CREATE, true],
+            ['nike_name', ['if' => 'name'], ['name' => 'a'], V::CREATE, false],
+            ['nike_name', ['if' => 'name'], ['name' => ''], V::CREATE, true],
+            ['nike_name', ['unless' => 'name'], ['name' => 'a'], V::CREATE, true],
+            ['nike_name', ['unless' => 'name'], ['name' => ''], V::CREATE, false],
+            ['name', ['on' => V::CREATE], [], V::CREATE, false],
+            ['name', ['on' => V::UPDATE], [], V::CREATE, true],
+            ['name', ['on' => V::SAVE], [], V::CREATE, false],
+            ['name', ['allow_nil' => true], ['name' => ''], V::CREATE, false],
+            ['name', ['allow_nil' => true], ['name' => null], V::CREATE, true],
+            ['name', ['allow_nil' => false], ['name' => null], V::CREATE, false],
+            ['name', ['allow_blank' => true], ['name' => ''], V::CREATE, true],
+            ['name', ['allow_blank' => true], ['name' => '   '], V::CREATE, true],
+            ['name', ['allow_blank' => true], ['name' => null], V::CREATE, true],
+            ['name', ['allow_blank' => true], ['name' => 'a'], V::CREATE, false],
+            ['name', ['allow_blank' => false], ['name' => null], V::CREATE, false],
+            ['name', ['allow_blank' => false], ['name' => 'a'], V::CREATE, false],
         ];
     }
 
