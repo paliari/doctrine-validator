@@ -170,6 +170,9 @@ trait TraitValidatorModel
 
     protected function _defaultValidates()
     {
+        if (isset(MappingsValidates::$cache[static::className()])) {
+            return;
+        }
         $length       = MappingsValidates::getDefaults(static::className(), 'validates_length_of');
         $numericality = MappingsValidates::getDefaults(static::className(), 'validates_numericality_of');
         $inclusion    = MappingsValidates::getDefaults(static::className(), 'validates_inclusion_of');

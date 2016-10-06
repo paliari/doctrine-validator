@@ -6,7 +6,7 @@ use Doctrine\DBAL\Types\Type;
 class MappingsValidates
 {
 
-    protected static $cache = [];
+    public static $cache = [];
 
     protected static $_type_int     = [Type::INTEGER, Type::BIGINT, Type::SMALLINT];
     protected static $_type_numeric = [Type::FLOAT, Type::DECIMAL];
