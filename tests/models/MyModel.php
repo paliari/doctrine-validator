@@ -7,9 +7,10 @@
 class MyModel extends \AbstractModel
 {
 
-    public static $validates_format_of = [
+    protected static $validates_format_of = [
         'email' => ['with' => 'email'],
     ];
+    protected static $validates_custom = ['count'];
 
     /**
      * Primary Key column.
@@ -54,5 +55,12 @@ class MyModel extends \AbstractModel
      * @Column(type="integer", nullable=true)
      */
     public $count;
+
+    public function count()
+    {
+        if ($this->count > 10) {
+            $this->errors->add('count', 'too long');
+        }
+    }
 
 }
