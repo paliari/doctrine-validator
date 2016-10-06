@@ -149,7 +149,7 @@ class Validator
     public function inclusionOf($field, $options)
     {
         $in = @$options['in'] ?: @$options['within'] ?: [];
-        if (!in_array($this->model->$field, $in)) {
+        if (!in_array($this->model->$field, $in, true)) {
             $this->add($field, $this->getMessage($options, 'inclusion'));
         }
     }
@@ -161,7 +161,7 @@ class Validator
     public function exclusionOf($field, $options)
     {
         $in = @$options['in'] ?: @$options['within'] ?: [];
-        if (in_array($this->model->$field, $in)) {
+        if (in_array($this->model->$field, $in, true)) {
             $this->add($field, $this->getMessage($options, 'exclusion'));
         }
     }
