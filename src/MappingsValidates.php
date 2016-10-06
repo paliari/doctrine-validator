@@ -31,7 +31,7 @@ class MappingsValidates
      */
     protected static function extractDefaultsValidates($model_name)
     {
-        $length = $numericality = [];
+        $length = $numericality = $inclusion = [];
         foreach ($model_name::getEm()->getClassMetadata($model_name)->fieldMappings as $field => $map) {
             $type = $map['type'];
             if (!@$map['id']) {
@@ -42,11 +42,15 @@ class MappingsValidates
                 if ($is_int || in_array($type, static::$_type_numeric)) {
                     $numericality[$field] = ['only_integer' => $is_int, 'allow_blank' => $map['nullable']];
                 }
+                if (Type::BOOLEAN == $type) {
+                    $inclusion[$field] = ['in' => [true, false], 'allow_blank' => $map['nullable']];
+                }
             }
         }
         static::$cache[$model_name] = [
             'validates_length_of'       => $length,
             'validates_numericality_of' => $numericality,
+            'validates_inclusion_of'    => $inclusion,
         ];
     }
 

@@ -172,8 +172,11 @@ trait TraitValidatorModel
     {
         $length       = MappingsValidates::getDefaults(static::className(), 'validates_length_of');
         $numericality = MappingsValidates::getDefaults(static::className(), 'validates_numericality_of');
-        static::$validates_length_of       = array_merge($length, static::$validates_length_of);
-        static::$validates_numericality_of = array_merge($numericality, static::$validates_numericality_of);
+        $inclusion    = MappingsValidates::getDefaults(static::className(), 'validates_inclusion_of');
+
+        static::$validates_length_of       = array_merge_recursive($length, static::$validates_length_of);
+        static::$validates_numericality_of = array_merge_recursive($numericality, static::$validates_numericality_of);
+        static::$validates_inclusion_of    = array_merge_recursive($inclusion, static::$validates_inclusion_of);
     }
 
     public function isValid()
