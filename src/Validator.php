@@ -246,7 +246,7 @@ class Validator
             case 'less_than' :
                 return $value < $than;
             case 'less_than_or_equal_to' :
-                return $value < $than;
+                return $value <= $than;
             case 'equal_to' :
                 return $value == $than;
             case 'other_than' :
