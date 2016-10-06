@@ -41,7 +41,7 @@ class Validator
     /**
      * Validator constructor.
      *
-     * @param AbstractValidatorModel $model
+     * @param InterfaceModel $model
      */
     public function __construct($model)
     {
