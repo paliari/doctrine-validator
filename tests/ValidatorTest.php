@@ -231,24 +231,6 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @dataProvider dataProviderPresenceOf
-     */
-    public function testPresenceOf($field, $value, $expected)
-    {
-        $this->model->$field = $value;
-        $this->validator->presenceOf($field, []);
-        $this->assertEquals($expected, $this->model->errors->isValid());
-    }
-
-    public function dataProviderPresenceOf()
-    {
-        return [
-            ['name', 'a', true],
-            ['name', '', false],
-        ];
-    }
-
-    /**
      * @dataProvider dataProviderValidateOf
      */
     public function testValidateOf($method, $field, $options, $value, $expected)
@@ -261,6 +243,8 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
     public function dataProviderValidateOf()
     {
         return [
+            ['presenceOf', 'name', [], 'a', true],
+            ['presenceOf', 'name', [], '', false],
             ['lengthOf', 'name', ['minimum' => 1], 'aa', true],
             ['lengthOf', 'name', ['minimum' => 1], 'a', true],
             ['lengthOf', 'name', ['minimum' => 10], 'aa', false],
