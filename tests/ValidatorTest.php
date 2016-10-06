@@ -286,6 +286,17 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
             ['formatOf', 'name', ['with' => '/\D/'], '99', false],
             ['formatOf', 'name', ['with' => '/\D/'], 'aa', true],
             ['formatOf', 'name', ['without' => 'url'], 'adfasdsa', true],
+            ['numericalityOf', 'value', ['only_integer' => true], 123, true],
+            ['numericalityOf', 'value', ['only_integer' => true], '123', true],
+            ['numericalityOf', 'value', ['only_integer' => true], '123.0', false],
+            ['numericalityOf', 'value', ['only_integer' => true], 123.1, false],
+            ['numericalityOf', 'value', [], 123.1, true],
+            ['numericalityOf', 'value', [], 123, true],
+            ['numericalityOf', 'value', [], 1.111111111111, true],
+            ['numericalityOf', 'value', [], '1.111111111111', true],
+            ['numericalityOf', 'value', [], '11a', false],
+            ['numericalityOf', 'value', [], '', false],
+            ['numericalityOf', 'value', [], null, false],
         ];
     }
 
