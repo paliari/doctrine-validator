@@ -122,10 +122,16 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
 
     public function doTestMethod($method, $value, $expected)
     {
+        $res = $this->invokeProtectedMethod($method, [$value]);
+        $this->assertEquals($expected, $res);
+    }
+
+    public function invokeProtectedMethod($method, $args)
+    {
         $method = $this->reflection->getMethod($method);
         $method->setAccessible(true);
-        $res = $method->invokeArgs($this->validator, [$value]);
-        $this->assertEquals($expected, $res);
+
+        return $method->invokeArgs($this->validator, $args);
     }
 
 }
