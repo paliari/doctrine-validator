@@ -302,6 +302,43 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
         ];
     }
 
+    /**
+     * @dataProvider dataProviderUniquenessOf
+     */
+    public function testUniquenessOf($field, $options, $filters, $return, $expected)
+    {
+        $er = $this->getMockBuilder('\Doctrine\ORM\EntityRepository')
+                   ->disableOriginalConstructor()->setMethods(['findBy'])->getMock()
+        ;
+        $er->expects($this->once())->method('findBy')
+           ->with($filters)
+           ->will($this->returnValue($return))
+        ;
+        $em = $this->getMockBuilder('\Doctrine\ORM\EntityManager')
+                   ->disableOriginalConstructor()->setMethods(['getRepository'])->getMock()
+        ;
+        $em->expects($this->once())->method('getRepository')->with('MyModel')->will($this->returnValue($er));
+        $rc = new ReflectionClass('EM');
+        $p  = $rc->getProperty('_em');
+        $p->setAccessible(true);
+        $p->setValue($em);
+        $this->validator->uniquenessOf($field, $options);
+        $this->assertEquals($expected, $this->model->errors->isValid());
+    }
+
+    public function dataProviderUniquenessOf()
+    {
+        $old_model     = new MyModel();
+        $old_model->id = 1;
+
+        return [
+            ['email', ['scope' => ['name']], ['email' => '', 'name' => ''], [$old_model], false],
+            ['email', [], ['email' => ''], [$old_model], false],
+            ['email', ['scope' => ['name']], ['email' => '', 'name' => ''], [], true],
+            ['email', [], ['email' => ''], [], true],
+        ];
+    }
+
     public function doTestMethod($method, $args, $expected)
     {
         $res = $this->invokeProtectedMethod($method, $args);
