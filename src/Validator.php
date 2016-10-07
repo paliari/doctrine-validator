@@ -210,7 +210,7 @@ class Validator
         foreach ((array)@$options['scope'] as $scope) {
             $criteria[$scope] = $this->model->$scope;
         }
-        $old = $this->model->getEm()->getRepository(get_class($this->model))->findBy($criteria, null, 1)[0];
+        $old = $this->model->getEm()->getRepository($this->model->className())->findBy($criteria, null, 1)[0];
         if ($old && $old->id != $this->model->id) {
             $this->add($field, $this->getMessage($options, 'unique'));
         }
