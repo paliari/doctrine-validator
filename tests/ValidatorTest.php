@@ -339,6 +339,60 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
         ];
     }
 
+    /**
+     * @dataProvider dataAllValidatesOf
+     */
+    public function testAllValidatesOf($validate_of, $options, $values, $expected)
+    {
+        foreach ($this->reflection_model->getProperties(ReflectionProperty::IS_STATIC) as $property) {
+            $property->setAccessible(true);
+            $property->setValue([]);
+        }
+        foreach ($values as $field => $value) {
+            $this->model->$field = $value;
+        }
+        $p = $this->reflection_model->getProperty($validate_of);
+        $p->setAccessible(true);
+        $p->setValue($options);
+        $this->validator->validate();
+        $this->assertEquals($expected, $this->model->errors->isValid());
+        foreach ($options as $k => $option) {
+            if (is_string($option)) {
+                $k = $option;
+            }
+            $this->assertEquals($expected, !isset($this->model->errors->toArray()[$k]));
+        }
+        $this->assertEquals($expected, $this->model->errors->isValid());
+    }
+
+    public function dataAllValidatesOf()
+    {
+        return [
+            ['validates_presence_of', ['name'], [], false],
+            ['validates_presence_of', ['name' => []], ['name' => 'a'], true],
+            ['validates_size_of', ['name' => ['in' => [1, 3]]], ['name' => 'a'], true],
+            ['validates_size_of', ['name' => ['in' => [1, 3]]], ['name' => ''], false],
+            ['validates_length_of', ['name' => ['in' => [1, 3]]], ['name' => ''], false],
+            ['validates_inclusion_of', ['name' => ['in' => ['a']]], [], false],
+            ['validates_inclusion_of', ['name' => ['in' => ['a']]], ['name' => 'a'], true],
+            ['validates_exclusion_of', ['name' => ['in' => ['a']]], [], true],
+            ['validates_exclusion_of', ['name' => ['in' => ['a']]], ['name' => 'a'], false],
+            ['validates_format_of', ['email' => ['with' => 'email']], ['email' => 'aaa@aa.aa'], true],
+            ['validates_format_of', ['email' => ['with' => 'email']], [], false],
+            ['validates_format_of', ['email' => ['with' => 'email', 'allow_blank' => true]], [], true],
+            ['validates_format_of', ['email' => ['with' => 'email', 'allow_blank' => true]], ['email' => 'aa'], false],
+            ['validates_numericality_of', ['value'], ['value' => '0'], true],
+            ['validates_numericality_of', ['value'], ['value' => '1.02'], true],
+            ['validates_numericality_of', ['value'], ['value' => 10.1], true],
+            ['validates_numericality_of', ['value'], ['value' => ''], false],
+            ['validates_numericality_of', ['value'], ['value' => 'a'], false],
+            ['validates_numericality_of', ['value' => ['only_integer' => true]], ['value' => '0.1'], false],
+            ['validates_numericality_of', ['value' => ['only_integer' => true]], ['value' => 0], true],
+            ['validates_custom', ['count'], [], true],
+            ['validates_custom', ['count'], ['count' => 20], false],
+        ];
+    }
+
     public function doTestMethod($method, $args, $expected)
     {
         $res = $this->invokeProtectedMethod($method, $args);
