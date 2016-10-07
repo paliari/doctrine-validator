@@ -29,7 +29,7 @@ class YourModel extends \Paliari\Doctrine\AbstractValidatorModel
 
 ```
 
-Or include TraitValidatorModel in our model
+Or include TraitValidatorModel in your model
 
 ```php
 
