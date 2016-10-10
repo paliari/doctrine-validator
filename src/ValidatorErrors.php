@@ -28,6 +28,8 @@ class ValidatorErrors
         'greater_than_or_equal_to' => 'must be greater than or equal to %{count}',
     ];
 
+    public $model_name = '';
+
     protected $messages = [];
 
     public static function getDefaultMessage($key)
@@ -72,4 +74,14 @@ class ValidatorErrors
         return $this->messages;
     }
 
+    public function __toString()
+    {
+        $str = '';
+        foreach ($this->messages as $k => $errors) {
+            $model = $this->model_name;
+            $str .= $model::humAttribute($k) . ': ' . implode(', ', $errors);
+        }
+
+        return $str;
+    }
 }

@@ -219,4 +219,9 @@ trait TraitValidatorModel
         return get_called_class();
     }
 
+    public static function humAttribute($name)
+    {
+        return $name;
+    }
+
 }

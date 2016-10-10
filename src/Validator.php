@@ -47,6 +47,7 @@ class Validator
     {
         $this->model         = $model;
         $this->model->errors = new ValidatorErrors();
+        $this->model->errors->model_name = $model->className();
     }
 
     public function validate()
