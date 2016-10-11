@@ -183,13 +183,9 @@ trait TraitValidatorModel
 
     public function isValid()
     {
-        try {
+        return $this->tryAction(function () {
             $this->_validate();
-        } catch (ModelException $e) {
-            return false;
-        }
-
-        return $this->errors->isValid();
+        });
     }
 
     public function persist()
@@ -206,13 +202,37 @@ trait TraitValidatorModel
      */
     public function save($throw = false)
     {
-        try {
+        $valid = $this->tryAction(function () {
             $this->persist();
             static::getEm()->flush($this);
+        }, $throw);
+        if (!$valid) {
+            @static::getEm()->clear($this);
+        }
+
+        return $valid;
+    }
+
+    /**
+     * @param bool $throw
+     *
+     * @return bool
+     */
+    public function destroy($throw = false)
+    {
+        return $this->tryAction(function () {
+            static::getEm()->remove($this);
+            static::getEm()->flush($this);
+        }, $throw);
+    }
+
+    private function tryAction($call, $throw = false)
+    {
+        try {
+            $call();
 
             return true;
         } catch (ModelException $e) {
-            @static::getEm()->clear($this);
             if ($throw) {
                 throw $e;
             }
