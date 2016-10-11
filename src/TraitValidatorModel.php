@@ -156,15 +156,15 @@ trait TraitValidatorModel
         }
     }
 
-    /**
-     * @return bool
-     */
     protected function _validate()
     {
         $this->_defaultValidates();
         $this->_doValidation('before');
         $validator = new Validator($this);
         $validator->validate();
+        if (!$this->errors->isValid()) {
+            throw new ModelException($this->errors);
+        }
         $this->_doValidation('after');
     }
 
@@ -173,10 +173,9 @@ trait TraitValidatorModel
         if (isset(MappingsValidates::$cache[static::className()])) {
             return;
         }
-        $length       = MappingsValidates::getDefaults(static::className(), 'validates_length_of');
-        $numericality = MappingsValidates::getDefaults(static::className(), 'validates_numericality_of');
-        $inclusion    = MappingsValidates::getDefaults(static::className(), 'validates_inclusion_of');
-
+        $length                            = MappingsValidates::getDefaults(static::className(), 'validates_length_of');
+        $numericality                      = MappingsValidates::getDefaults(static::className(), 'validates_numericality_of');
+        $inclusion                         = MappingsValidates::getDefaults(static::className(), 'validates_inclusion_of');
         static::$validates_length_of       = array_merge_recursive($length, static::$validates_length_of);
         static::$validates_numericality_of = array_merge_recursive($numericality, static::$validates_numericality_of);
         static::$validates_inclusion_of    = array_merge_recursive($inclusion, static::$validates_inclusion_of);
@@ -184,9 +183,44 @@ trait TraitValidatorModel
 
     public function isValid()
     {
-        $this->_validate();
+        try {
+            $this->_validate();
+        } catch (ModelException $e) {
+            return false;
+        }
 
         return $this->errors->isValid();
+    }
+
+    public function persist()
+    {
+        static::getEm()->persist($this);
+    }
+
+    /**
+     * @param bool $throw
+     *
+     * @return bool
+     * @throws ModelException
+     * @throws \Exception
+     */
+    public function save($throw = false)
+    {
+        $this->persist();
+        try {
+            static::getEm()->flush($this);
+
+            return true;
+        } catch (ModelException $e) {
+            @static::getEm()->clear($this);
+            if ($throw) {
+                throw $e;
+            }
+        } catch (\Exception $e) {
+            throw $e;
+        }
+
+        return false;
     }
 
     /**
