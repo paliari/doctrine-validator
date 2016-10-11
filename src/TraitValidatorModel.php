@@ -206,8 +206,8 @@ trait TraitValidatorModel
      */
     public function save($throw = false)
     {
-        $this->persist();
         try {
+            $this->persist();
             static::getEm()->flush($this);
 
             return true;
