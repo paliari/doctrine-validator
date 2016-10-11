@@ -148,9 +148,9 @@ trait TraitValidatorModel
     protected function _doValidation($action)
     {
         $action .= '_validation';
-        $callbacks = @$this->$action ?: [];
+        $callbacks = static::${$action} ?: [];
         $action .= '_on_' . $this->recordState();
-        $callbacks = array_merge($callbacks, @$this->$action ?: []);
+        $callbacks = array_merge($callbacks, static::${$action} ?: []);
         foreach ($callbacks as $callback) {
             $this->$callback();
         }
