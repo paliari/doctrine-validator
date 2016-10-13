@@ -76,10 +76,10 @@ class ValidatorErrors
 
     public function __toString()
     {
-        $str = '';
+        $model = $this->model_name;
+        $str   = '';
         foreach ($this->messages as $k => $errors) {
-            $model = $this->model_name;
-            $str .= $model::humAttribute($k) . ': ' . implode(', ', $errors);
+            $str .= $model::humAttribute($k) . ': ' . implode(', ', $errors) . "\n";
         }
 
         return $str;
