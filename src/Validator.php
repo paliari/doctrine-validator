@@ -45,8 +45,8 @@ class Validator
      */
     public function __construct($model)
     {
-        $this->model         = $model;
-        $this->model->errors = new ValidatorErrors();
+        $this->model                     = $model;
+        $this->model->errors             = new ValidatorErrors();
         $this->model->errors->model_name = $model->className();
     }
 
