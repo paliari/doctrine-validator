@@ -11,7 +11,7 @@ class Validator
     const UPDATE = 'update';
     const REMOVE = 'remove';
 
-    protected static $_validations = [
+    protected static $_validations_names = [
         'validates_presence_of',
         'validates_size_of',
         'validates_length_of',
@@ -52,7 +52,7 @@ class Validator
 
     public function validate()
     {
-        foreach (static::$_validations as $validation) {
+        foreach (static::$_validations_names as $validation) {
             $validation_method = Inflector::camelize(str_replace('validates_', '', $validation));
             $get_method_name   = 'get' . Inflector::camelize($validation);
             $this->validates($validation_method, $this->model->$get_method_name());
