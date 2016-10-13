@@ -9,49 +9,11 @@ interface InterfaceModel
     /**
      * @return array
      */
-    public static function getValidatesPresenceOf();
+    public static function getValidates($name);
 
     /**
-     * @return array
+     * @return bool
      */
-    public static function getValidatesSizeOf();
-
-    /**
-     * @return array
-     */
-    public static function getValidatesLengthOf();
-
-    /**
-     * @return array
-     */
-    public static function getValidatesInclusionOf();
-
-    /**
-     * @return array
-     */
-    public static function getValidatesExclusionOf();
-
-    /**
-     * @return array
-     */
-    public static function getValidatesFormatOf();
-
-    /**
-     * @return array
-     */
-    public static function getValidatesNumericalityOf();
-
-    /**
-     * @return array
-     */
-    public static function getValidatesUniquenessOf();
-
-    /**
-     * @return array
-     */
-    public static function getValidatesCustom();
-
-
     public function isValid();
 
     /**
@@ -69,6 +31,9 @@ interface InterfaceModel
      */
     public static function getEm();
 
+    /**
+     * @return string
+     */
     public static function className();
 
 }
