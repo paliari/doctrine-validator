@@ -341,19 +341,17 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @dataProvider dataAllValidatesOf
+     * @group a
      */
     public function testAllValidatesOf($validate_of, $options, $values, $expected)
     {
-        foreach ($this->reflection_model->getProperties(ReflectionProperty::IS_STATIC) as $property) {
-            $property->setAccessible(true);
-            $property->setValue([]);
-        }
+        $property = $this->reflection->getProperty('_validates');
+        $property->setAccessible(true);
+//        $property->setValue([]);
+        $property->setValue([$this->model->className() =>[$validate_of => $options]]);
         foreach ($values as $field => $value) {
             $this->model->$field = $value;
         }
-        $p = $this->reflection_model->getProperty($validate_of);
-        $p->setAccessible(true);
-        $p->setValue($options);
         $this->validator->validate();
         $this->assertEquals($expected, $this->model->errors->isValid());
         foreach ($options as $k => $option) {
