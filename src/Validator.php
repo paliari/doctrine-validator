@@ -11,6 +11,14 @@ class Validator
     const UPDATE = 'update';
     const REMOVE = 'remove';
 
+    protected static $_validates = [];
+
+    protected static $_validations_default_names = [
+        'validates_length_of',
+        'validates_numericality_of',
+        'validates_inclusion_of',
+    ];
+
     protected static $_validations_names = [
         'validates_presence_of',
         'validates_size_of',
@@ -48,14 +56,50 @@ class Validator
         $this->model                     = $model;
         $this->model->errors             = new ValidatorErrors();
         $this->model->errors->model_name = $model->className();
+        $this->init();
+    }
+
+    protected function init()
+    {
+        $model_name = $this->model->className();
+        if (!isset(static::$_validates[$model_name])) {
+            static::initValidates($model_name);
+        }
+    }
+
+    public static function initValidates($model_name)
+    {
+        static::defaultValidates($model_name);
+        foreach (static::$_validations_names as $validation) {
+            static::setValidates($model_name, $validation, $model_name::getValidates($validation));
+        }
+    }
+
+    protected static function defaultValidates($model_name)
+    {
+        foreach (static::$_validations_default_names as $name) {
+            static::setValidates($model_name, $name, MappingsValidates::getDefaults($model_name, $name));
+        }
+    }
+
+    protected static function setValidates($model, $validation_name, $validation)
+    {
+        if (isset(static::$_validates[$model][$validation_name])) {
+            $validation = array_merge_recursive(static::$_validates[$model][$validation_name], $validation);
+        }
+        static::$_validates[$model][$validation_name] = $validation;
+    }
+
+    protected static function getValidates($model, $validation_name)
+    {
+        return @static::$_validates[$model][$validation_name] ?: [];
     }
 
     public function validate()
     {
         foreach (static::$_validations_names as $validation) {
             $validation_method = Inflector::camelize(str_replace('validates_', '', $validation));
-            $get_method_name   = 'get' . Inflector::camelize($validation);
-            $this->validates($validation_method, $this->model->$get_method_name());
+            $this->validates($validation_method, static::getValidates($this->model->className(), $validation));
         }
     }
 
@@ -261,7 +305,7 @@ class Validator
      */
     protected function checkFilterVar($value, $filter)
     {
-        if (static::$_validate_filters[$filter]) {
+        if (isset(static::$_validate_filters[$filter])) {
             return null !== filter_var($value, static::$_validate_filters[$filter], FILTER_NULL_ON_FAILURE);
         }
 
