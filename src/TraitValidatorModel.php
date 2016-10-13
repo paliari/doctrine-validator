@@ -26,75 +26,13 @@ trait TraitValidatorModel
     protected static $validates_custom          = [];
 
     /**
+     * @param string $name
+     *
      * @return array
      */
-    public static function getValidatesPresenceOf()
+    public static function getValidates($name)
     {
-        return static::$validates_presence_of;
-    }
-
-    /**
-     * @return array
-     */
-    public static function getValidatesSizeOf()
-    {
-        return static::$validates_size_of;
-    }
-
-    /**
-     * @return array
-     */
-    public static function getValidatesLengthOf()
-    {
-        return static::$validates_length_of;
-    }
-
-    /**
-     * @return array
-     */
-    public static function getValidatesInclusionOf()
-    {
-        return static::$validates_inclusion_of;
-    }
-
-    /**
-     * @return array
-     */
-    public static function getValidatesExclusionOf()
-    {
-        return static::$validates_exclusion_of;
-    }
-
-    /**
-     * @return array
-     */
-    public static function getValidatesFormatOf()
-    {
-        return static::$validates_format_of;
-    }
-
-    /**
-     * @return array
-     */
-    public static function getValidatesNumericalityOf()
-    {
-        return static::$validates_numericality_of;
-    }
-
-    /**
-     * @return array
-     */
-    public static function getValidatesUniquenessOf()
-    {
-        return static::$validates_uniqueness_of;
-    }
-
-    /**
-     * @return array
-     */
-    public static function getValidatesCustom()
-    {
-        return static::$validates_custom;
+        return @static::${$name} ?: [];
     }
 
     /**
@@ -158,7 +96,6 @@ trait TraitValidatorModel
 
     protected function _validate()
     {
-        $this->_defaultValidates();
         $this->_doValidation('before');
         $validator = new Validator($this);
         $validator->validate();
@@ -166,19 +103,6 @@ trait TraitValidatorModel
             throw new ModelException($this->errors);
         }
         $this->_doValidation('after');
-    }
-
-    protected function _defaultValidates()
-    {
-        if (isset(MappingsValidates::$cache[static::className()])) {
-            return;
-        }
-        $length                            = MappingsValidates::getDefaults(static::className(), 'validates_length_of');
-        $numericality                      = MappingsValidates::getDefaults(static::className(), 'validates_numericality_of');
-        $inclusion                         = MappingsValidates::getDefaults(static::className(), 'validates_inclusion_of');
-        static::$validates_length_of       = array_merge_recursive($length, static::$validates_length_of);
-        static::$validates_numericality_of = array_merge_recursive($numericality, static::$validates_numericality_of);
-        static::$validates_inclusion_of    = array_merge_recursive($inclusion, static::$validates_inclusion_of);
     }
 
     public function isValid()
