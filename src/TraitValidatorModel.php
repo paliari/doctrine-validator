@@ -14,6 +14,8 @@ trait TraitValidatorModel
     protected static $after_validation_on_create  = [];
     protected static $before_validation_on_update = [];
     protected static $after_validation_on_update  = [];
+    protected static $before_validation_on_remove = [];
+    protected static $after_validation_on_remove  = [];
 
     protected static $validates_presence_of     = [];
     protected static $validates_size_of         = [];
