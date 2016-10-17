@@ -85,7 +85,7 @@ class Validator
     protected static function setValidates($model, $validation_name, $validation)
     {
         if (isset(static::$_validates[$model][$validation_name])) {
-            $validation = array_merge_recursive(static::$_validates[$model][$validation_name], $validation);
+            $validation = static::merge(static::$_validates[$model][$validation_name], $validation);
         }
         static::$_validates[$model][$validation_name] = $validation;
     }
@@ -255,7 +255,8 @@ class Validator
         foreach ((array)@$options['scope'] as $scope) {
             $criteria[$scope] = $this->model->$scope;
         }
-        $old = $this->model->getEm()->getRepository($this->model->className())->findBy($criteria, null, 1)[0];
+        $olds = $this->model->getEm()->getRepository($this->model->className())->findBy($criteria, null, 1);
+        $old  = @$olds[0];
         if ($old && $old->id != $this->model->id) {
             $this->add($field, $this->getMessage($options, 'unique'));
         }
@@ -384,6 +385,19 @@ class Validator
             $message = $this->replaceMessage($message, $replace, $search);
         }
         $this->model->errors->add($field, $message);
+    }
+
+    protected static function merge($a1, $a2)
+    {
+        $a1 = (array)$a1;
+        $a2 = (array)$a2;
+        foreach ($a1 as $k => $v) {
+            if (is_array($v) && @$a2[$k]) {
+                $a1[$k] = $a2[$k] = static::merge($v, $a2[$k]);
+            }
+        }
+
+        return array_merge($a1, $a2);
     }
 
 }
