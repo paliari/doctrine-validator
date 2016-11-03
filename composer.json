@@ -2,6 +2,7 @@
     "name": "paliari/doctrine-validator",
     "description": "Advanced model validator for Doctrine ORM (based on ActiveRecord)",
     "type": "library",
+    "homepage": "https://github.com/paliari/doctrine-validator",
     "require": {
         "doctrine/orm": "^2.5"
     },
