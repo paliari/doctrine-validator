@@ -4,6 +4,11 @@ namespace Paliari\Doctrine;
 class ValidatorErrors
 {
 
+    /**
+     * @var callable
+     */
+    public static $custom_get_message;
+
     public static $_default_messages = [
         'inclusion'                => 'is not included in the list',
         'exclusion'                => 'is reserved',
@@ -34,6 +39,10 @@ class ValidatorErrors
 
     public static function getDefaultMessage($key)
     {
+        if (static::$custom_get_message) {
+            return call_user_func(static::$custom_get_message, $key);
+        }
+
         return static::$_default_messages[$key];
     }
 
