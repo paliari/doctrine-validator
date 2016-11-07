@@ -242,3 +242,4 @@ Create a `protected static` property with the callbacks inside your model. See t
 
 - [Marcos Paliari](http://paliari.com.br)
 - [Daniel Fernando Lourusso](http://dflourusso.com.br)
+
