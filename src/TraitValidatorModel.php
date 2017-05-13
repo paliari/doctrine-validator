@@ -98,13 +98,18 @@ trait TraitValidatorModel
 
     protected function _validate()
     {
-        $this->_doValidation('before');
-        $validator = new Validator($this);
-        $validator->validate();
+        $validated = $this->errors instanceof Validator;
+        if (!$validated) {
+            $this->_doValidation('before');
+            $validator = new Validator($this);
+            $validator->validate();
+        }
         if (!$this->errors->isValid()) {
             throw new ModelException($this->errors);
         }
-        $this->_doValidation('after');
+        if (!$validated) {
+            $this->_doValidation('after');
+        }
     }
 
     public function isValid()
