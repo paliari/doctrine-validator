@@ -1,7 +1,8 @@
 <?php
 namespace Paliari\Doctrine;
 
-use Doctrine\Common\Inflector\Inflector;
+use Paliari\Doctrine\Validators\FilterVarValidator,
+    Doctrine\Common\Inflector\Inflector;
 
 class Validator
 {
@@ -29,16 +30,6 @@ class Validator
         'validates_numericality_of',
         'validates_uniqueness_of',
         'validates_custom',
-    ];
-
-    protected static $_validate_filters = [
-        'boolean'     => FILTER_VALIDATE_BOOLEAN,
-        'email'       => FILTER_VALIDATE_EMAIL,
-        'float'       => FILTER_VALIDATE_FLOAT,
-        'integer'     => FILTER_VALIDATE_INT,
-        'ip'          => FILTER_VALIDATE_IP,
-        'mac_address' => FILTER_VALIDATE_MAC,
-        'url'         => FILTER_VALIDATE_URL,
     ];
 
     /**
@@ -306,11 +297,7 @@ class Validator
      */
     protected function checkFilterVar($value, $filter)
     {
-        if (isset(static::$_validate_filters[$filter])) {
-            return null !== filter_var($value, static::$_validate_filters[$filter], FILTER_NULL_ON_FAILURE);
-        }
-
-        return 1 === preg_match($filter, $value);
+        return FilterVarValidator::instance()->check($value, $filter);
     }
 
     /**
