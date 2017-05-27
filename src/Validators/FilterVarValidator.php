@@ -4,6 +4,7 @@ namespace Paliari\Doctrine\Validators;
 class FilterVarValidator extends BaseValidator
 {
 
+    const BOOLEAN     = 'boolean';
     const EMAIL       = 'email';
     const FLOAT       = 'float';
     const INTEGER     = 'integer';
@@ -12,6 +13,7 @@ class FilterVarValidator extends BaseValidator
     const URL         = 'url';
 
     protected static $_types = [
+        self::BOOLEAN     => FILTER_VALIDATE_BOOLEAN,
         self::EMAIL       => FILTER_VALIDATE_EMAIL,
         self::FLOAT       => FILTER_VALIDATE_FLOAT,
         self::INTEGER     => FILTER_VALIDATE_INT,
@@ -33,6 +35,16 @@ class FilterVarValidator extends BaseValidator
         }
 
         return 1 === preg_match($filter, $value);
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return bool
+     */
+    public function checkBoolean($value)
+    {
+        return $this->check($value, self::BOOLEAN);
     }
 
     /**
