@@ -86,26 +86,6 @@ class NumberValidator extends BaseValidator
     }
 
     /**
-     * @param mixed $value
-     *
-     * @return bool
-     */
-    public function checkEqualTo($value, $than)
-    {
-        return $value == $than;
-    }
-
-    /**
-     * @param mixed $value
-     *
-     * @return bool
-     */
-    public function checkOtherThan($value, $than)
-    {
-        return $value != $than;
-    }
-
-    /**
      * @return FilterVarValidator
      */
     protected function filter()

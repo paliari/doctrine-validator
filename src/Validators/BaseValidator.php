@@ -41,7 +41,7 @@ class BaseValidator
      *
      * @return bool
      */
-    public function isPresence($value)
+    public function checkPresenceOf($value)
     {
         return !$this->isBlank($value);
     }
@@ -52,7 +52,7 @@ class BaseValidator
      *
      * @return bool
      */
-    public function isIncluded($value, $in)
+    public function checkIncluded($value, $in)
     {
         return in_array($value, $in, true);
     }
@@ -63,9 +63,31 @@ class BaseValidator
      *
      * @return bool
      */
-    public function isExcluded($value, $in)
+    public function checkExcluded($value, $in)
     {
-        return !$this->isIncluded($value, $in);
+        return !$this->checkIncluded($value, $in);
+    }
+
+    /**
+     * @param mixed $value
+     * @param int   $than
+     *
+     * @return bool
+     */
+    public function checkEqualTo($value, $than)
+    {
+        return $value == $than;
+    }
+
+    /**
+     * @param mixed $value
+     * @param int   $than
+     *
+     * @return bool
+     */
+    public function checkOtherThan($value, $than)
+    {
+        return $value != $than;
     }
 
 }
