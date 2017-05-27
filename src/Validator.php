@@ -2,6 +2,7 @@
 namespace Paliari\Doctrine;
 
 use Paliari\Doctrine\Validators\FilterVarValidator,
+    Paliari\Doctrine\Validators\NumberValidator,
     Doctrine\Common\Inflector\Inflector;
 
 class Validator
@@ -30,6 +31,15 @@ class Validator
         'validates_numericality_of',
         'validates_uniqueness_of',
         'validates_custom',
+    ];
+
+    protected static $_comparators = [
+        'greater_than',
+        'greater_than_or_equal_to',
+        'less_than',
+        'less_than_or_equal_to',
+        'equal_to',
+        'other_than'
     ];
 
     /**
@@ -271,19 +281,10 @@ class Validator
      */
     protected function comparatorThan($comparator, $value, $than)
     {
-        switch ($comparator) {
-            case 'greater_than' :
-                return $value > $than;
-            case 'greater_than_or_equal_to' :
-                return $value >= $than;
-            case 'less_than' :
-                return $value < $than;
-            case 'less_than_or_equal_to' :
-                return $value <= $than;
-            case 'equal_to' :
-                return $value == $than;
-            case 'other_than' :
-                return $value != $than;
+        if (in_array($comparator, static::$_comparators)) {
+            $method = 'check' . Inflector::classify($comparator);
+
+            return NumberValidator::instance()->$method($value, $than);
         }
 
         return true;
@@ -324,7 +325,7 @@ class Validator
      */
     protected function isInteger($value)
     {
-        return $this->checkFilterVar($value, 'integer');
+        return $this->checkFilterVar($value, FilterVarValidator::INTEGER);
     }
 
     /**
@@ -334,7 +335,7 @@ class Validator
      */
     protected function isNumber($value)
     {
-        return $this->checkFilterVar($value, 'float');
+        return $this->checkFilterVar($value, FilterVarValidator::FLOAT);
     }
 
     /**
