@@ -47,6 +47,7 @@ class NumberValidator extends BaseValidator
 
     /**
      * @param mixed $value
+     * @param int   $than
      *
      * @return bool
      */
@@ -57,6 +58,7 @@ class NumberValidator extends BaseValidator
 
     /**
      * @param mixed $value
+     * @param int   $than
      *
      * @return bool
      */
@@ -67,6 +69,7 @@ class NumberValidator extends BaseValidator
 
     /**
      * @param mixed $value
+     * @param int   $than
      *
      * @return bool
      */
@@ -77,6 +80,7 @@ class NumberValidator extends BaseValidator
 
     /**
      * @param mixed $value
+     * @param int   $than
      *
      * @return bool
      */
