@@ -5,17 +5,6 @@ class NumberValidator extends BaseValidator
 {
 
     /**
-     * @param mixed  $value
-     * @param string $filter
-     *
-     * @return bool
-     */
-    public function check($value, $filter)
-    {
-        return $this->filter()->check($value, $filter);
-    }
-
-    /**
      * @param mixed $value
      *
      * @return bool
