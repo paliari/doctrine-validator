@@ -2,7 +2,9 @@
 namespace Paliari\Doctrine;
 
 use Paliari\Doctrine\Validators\FilterVarValidator,
+    Paliari\Doctrine\Validators\LengthValidator,
     Paliari\Doctrine\Validators\NumberValidator,
+    Paliari\Doctrine\Validators\BaseValidator,
     Doctrine\Common\Inflector\Inflector;
 
 class Validator
@@ -167,21 +169,35 @@ class Validator
      */
     public function lengthOf($field, $options)
     {
-        $size    = mb_strlen($this->model->$field, 'UTF-8');
-        $minimum = @$options['minimum'];
-        $maximum = @$options['maximum'];
-        if ($in = @$options['within'] ?: @$options['in']) {
+        $value     = $this->model->$field;
+        $validator = LengthValidator::instance();
+        if ($in = $this->getInLengthOf($options)) {
             list($minimum, $maximum) = $in;
+        } else {
+            $minimum = isset($options['minimum']) ? $options['minimum'] : null;
+            $maximum = isset($options['maximum']) ? $options['maximum'] : null;
         }
-        if ($minimum && $size < $minimum) {
+        if ($minimum && !$validator->checkMinimum($value, $minimum)) {
             $this->add($field, $this->getMessage($options, 'too_short'), $minimum);
         }
-        if ($maximum && $size > $maximum) {
+        if ($maximum && !$validator->checkMaximum($value, $maximum)) {
             $this->add($field, $this->getMessage($options, 'too_long'), $maximum);
         }
-        if (isset($options['is']) && $size != $options['is']) {
+        if (isset($options['is']) && !$validator->checkEqual($value, $options['is'])) {
             $this->add($field, $this->getMessage($options, 'wrong_length'), $options['is']);
         }
+    }
+
+    protected function getInLengthOf($options)
+    {
+        if (isset($options['within']) && $options['within']) {
+            return $options['within'];
+        }
+        if (isset($options['in']) && $options['in']) {
+            return $options['in'];
+        }
+
+        return [];
     }
 
     /**
@@ -308,14 +324,7 @@ class Validator
      */
     protected function isBlank($value)
     {
-        if (is_string($value)) {
-            $value = trim($value);
-        }
-        if ('0' == $value) {
-            return false;
-        }
-
-        return empty($value);
+        return BaseValidator::instance()->isBlank($value);
     }
 
     /**
