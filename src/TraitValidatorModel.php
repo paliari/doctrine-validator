@@ -98,7 +98,7 @@ trait TraitValidatorModel
 
     protected function _validate()
     {
-        $validated = $this->errors instanceof Validator;
+        $validated = $this->errors instanceof ValidatorErrors;
         if (!$validated) {
             $this->_doValidation('before');
             $validator = new Validator($this);
