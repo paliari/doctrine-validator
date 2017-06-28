@@ -1,11 +1,13 @@
 <?php
+
 namespace Paliari\Doctrine;
 
 use Paliari\Doctrine\Validators\FilterVarValidator,
     Paliari\Doctrine\Validators\LengthValidator,
     Paliari\Doctrine\Validators\NumberValidator,
     Paliari\Doctrine\Validators\BaseValidator,
-    Doctrine\Common\Inflector\Inflector;
+    Doctrine\Common\Inflector\Inflector,
+    Paliari\Utils\A;
 
 class Validator
 {
@@ -95,7 +97,7 @@ class Validator
 
     protected static function getValidates($model, $validation_name)
     {
-        return @static::$_validates[$model][$validation_name] ?: [];
+        return A::get(static::$_validates[$model], $validation_name, []);
     }
 
     public function validate()
@@ -121,7 +123,7 @@ class Validator
 
     protected function skipValidation($field, $options)
     {
-        if (static::REMOVE == $this->model->recordState() && static::REMOVE != @$options['on']) {
+        if (static::REMOVE == $this->model->recordState() && static::REMOVE != A::get($options, 'on')) {
             return true;
         }
         if (isset($options['if']) && !$this->model->{$options['if']}) {
@@ -130,13 +132,13 @@ class Validator
         if (isset($options['unless']) && $this->model->{$options['unless']}) {
             return true;
         }
-        if (@$options['on'] && static::SAVE != $options['on']) {
+        if (A::get($options, 'on') && static::SAVE != $options['on']) {
             return $this->model->recordState() != $options['on'];
         }
-        if (@$options['allow_nil'] && null === $this->model->$field) {
+        if (A::get($options, 'allow_nil') && null === $this->model->{$field}) {
             return true;
         }
-        if (@$options['allow_blank'] && $this->isBlank($this->model->$field)) {
+        if (A::get($options, 'allow_blank') && $this->isBlank($this->model->{$field})) {
             return true;
         }
 
@@ -149,7 +151,7 @@ class Validator
      */
     public function presenceOf($field, $options)
     {
-        if ($this->isBlank($this->model->$field)) {
+        if ($this->isBlank($this->model->{$field})) {
             $this->add($field, $this->getMessage($options, 'blank'));
         }
     }
@@ -174,8 +176,8 @@ class Validator
         if ($in = $this->getInLengthOf($options)) {
             list($minimum, $maximum) = $in;
         } else {
-            $minimum = isset($options['minimum']) ? $options['minimum'] : null;
-            $maximum = isset($options['maximum']) ? $options['maximum'] : null;
+            $minimum = A::get($options, 'minimum');
+            $maximum = A::get($options, 'maximum');
         }
         if ($minimum && !$validator->checkMinimum($value, $minimum)) {
             $this->add($field, $this->getMessage($options, 'too_short'), $minimum);
@@ -206,8 +208,8 @@ class Validator
      */
     public function inclusionOf($field, $options)
     {
-        $in = @$options['in'] ?: @$options['within'] ?: [];
-        if (!in_array($this->model->$field, $in, true)) {
+        $in = A::get($options, 'in') ?: A::get($options, 'within', []);
+        if (!in_array($this->model->{$field}, $in, true)) {
             $this->add($field, $this->getMessage($options, 'inclusion'));
         }
     }
@@ -218,8 +220,8 @@ class Validator
      */
     public function exclusionOf($field, $options)
     {
-        $in = @$options['in'] ?: @$options['within'] ?: [];
-        if (in_array($this->model->$field, $in, true)) {
+        $in = A::get($options, 'in') ?: A::get($options, 'within', []);
+        if (in_array($this->model->{$field}, $in, true)) {
             $this->add($field, $this->getMessage($options, 'exclusion'));
         }
     }
@@ -230,13 +232,13 @@ class Validator
      */
     public function formatOf($field, $options)
     {
-        if ($with = @$options['with']) {
-            if (!$this->checkFilterVar($this->model->$field, $with)) {
+        if ($with = A::get($options, 'with')) {
+            if (!$this->checkFilterVar($this->model->{$field}, $with)) {
                 $this->add($field, $this->getMessage($options, 'invalid'));
             }
         }
-        if ($without = @$options['without']) {
-            if ($this->checkFilterVar($this->model->$field, $without)) {
+        if ($without = A::get($options, 'without')) {
+            if ($this->checkFilterVar($this->model->{$field}, $without)) {
                 $this->add($field, $this->getMessage($options, 'invalid'));
             }
         }
@@ -248,8 +250,8 @@ class Validator
      */
     public function numericalityOf($field, $options)
     {
-        $value = $this->model->$field;
-        if (@$options['only_integer'] && !$this->isInteger($value)) {
+        $value = $this->model->{$field};
+        if (A::get($options, 'only_integer') && !$this->isInteger($value)) {
             $this->add($field, $this->getMessage($options, 'not_a_integer'));
         }
         if (!$this->isNumber($value)) {
@@ -268,12 +270,12 @@ class Validator
      */
     public function uniquenessOf($field, $options)
     {
-        $criteria = [$field => $this->model->$field];
-        foreach ((array)@$options['scope'] as $scope) {
-            $criteria[$scope] = $this->model->$scope;
+        $criteria = [$field => $this->model->{$field}];
+        foreach (A::get($options, 'scope', []) as $scope) {
+            $criteria[$scope] = $this->model->{$scope};
         }
         $olds = $this->model->getEm()->getRepository($this->model->className())->findBy($criteria, null, 1);
-        $old  = @$olds[0];
+        $old  = A::get($olds, 0);
         if ($old && $old->id != $this->model->id) {
             $this->add($field, $this->getMessage($options, 'unique'));
         }
@@ -355,7 +357,7 @@ class Validator
      */
     protected function getMessage($options, $key = 'invalid')
     {
-        return @$options[$key] ?: @$options['message'] ?: $this->model->errors->getDefaultMessage($key);
+        return A::get($options, $key) ?: A::get($options, 'message') ?: $this->model->errors->getDefaultMessage($key);
     }
 
     /**
