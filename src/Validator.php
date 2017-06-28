@@ -124,10 +124,10 @@ class Validator
         if (static::REMOVE == $this->model->recordState() && static::REMOVE != @$options['on']) {
             return true;
         }
-        if (isset($options['if']) && !$this->model->$options['if']) {
+        if (isset($options['if']) && !$this->model->{$options['if']}) {
             return true;
         }
-        if (isset($options['unless']) && $this->model->$options['unless']) {
+        if (isset($options['unless']) && $this->model->{$options['unless']}) {
             return true;
         }
         if (@$options['on'] && static::SAVE != $options['on']) {
