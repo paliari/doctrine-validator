@@ -388,15 +388,7 @@ class Validator
 
     protected static function merge($a1, $a2)
     {
-        $a1 = (array)$a1;
-        $a2 = (array)$a2;
-        foreach ($a1 as $k => $v) {
-            if (is_array($v) && @$a2[$k]) {
-                $a1[$k] = $a2[$k] = static::merge($v, $a2[$k]);
-            }
-        }
-
-        return array_merge($a1, $a2);
+        return A::merge($a1, $a2);
     }
 
 }
