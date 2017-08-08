@@ -12,6 +12,7 @@ class MappingsValidates
 
     protected static $_type_int     = [Type::INTEGER, Type::BIGINT, Type::SMALLINT];
     protected static $_type_numeric = [Type::FLOAT, Type::DECIMAL];
+    protected static $_type_string  = [Type::STRING, Type::TEXT];
 
     /**
      * @param string $model_name
@@ -37,7 +38,7 @@ class MappingsValidates
         foreach ($model_name::getEm()->getClassMetadata($model_name)->fieldMappings as $field => $map) {
             $type = $map['type'];
             if (!A::get($map, 'id')) {
-                if (A::get($map, 'length')) {
+                if (A::get($map, 'length') && in_array($type, static::$_type_string)) {
                     $length[$field] = ['maximum' => $map['length'], 'allow_blank' => $map['nullable']];
                 }
                 $is_int = in_array($type, static::$_type_int);
