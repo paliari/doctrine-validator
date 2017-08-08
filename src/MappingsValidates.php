@@ -1,7 +1,9 @@
 <?php
+
 namespace Paliari\Doctrine;
 
 use Doctrine\DBAL\Types\Type;
+use Paliari\Utils\A;
 
 class MappingsValidates
 {
@@ -34,8 +36,8 @@ class MappingsValidates
         $length = $numericality = $inclusion = [];
         foreach ($model_name::getEm()->getClassMetadata($model_name)->fieldMappings as $field => $map) {
             $type = $map['type'];
-            if (!@$map['id']) {
-                if (@$map['length']) {
+            if (!A::get($map, 'id')) {
+                if (A::get($map, 'length')) {
                     $length[$field] = ['maximum' => $map['length'], 'allow_blank' => $map['nullable']];
                 }
                 $is_int = in_array($type, static::$_type_int);
