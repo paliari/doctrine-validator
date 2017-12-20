@@ -139,9 +139,7 @@ class Validator
             return true;
         }
         if (A::get($options, 'on') && static::SAVE != $options['on']) {
-            if ($this->model->recordState() != $options['on']) {
-                return true;
-            }
+            return $this->model->recordState() != $options['on'];
         }
 
         return false;
