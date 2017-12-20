@@ -132,14 +132,16 @@ class Validator
         if (isset($options['unless']) && $this->model->{$options['unless']}) {
             return true;
         }
-        if (A::get($options, 'on') && static::SAVE != $options['on']) {
-            return $this->model->recordState() != $options['on'];
-        }
         if (A::get($options, 'allow_nil') && null === $this->model->{$field}) {
             return true;
         }
         if (A::get($options, 'allow_blank') && $this->isBlank($this->model->{$field})) {
             return true;
+        }
+        if (A::get($options, 'on') && static::SAVE != $options['on']) {
+            if ($this->model->recordState() != $options['on']) {
+                return true;
+            }
         }
 
         return false;
