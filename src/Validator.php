@@ -287,7 +287,7 @@ class Validator
      */
     public function custom($method, $options = null)
     {
-        $this->model->$method();
+        $this->model->$method($options);
     }
 
     /**
