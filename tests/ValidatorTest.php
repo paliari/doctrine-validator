@@ -1,4 +1,5 @@
 <?php
+
 use Paliari\Doctrine\Validator as V;
 
 class ValidatorTest extends \PHPUnit\Framework\TestCase
@@ -24,7 +25,7 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
      */
     private $reflection_model;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->model            = new MyModel();
         $this->validator        = new V($this->model);
@@ -341,14 +342,14 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @dataProvider dataAllValidatesOf
-     * @group a
+     * @group        a
      */
     public function testAllValidatesOf($validate_of, $options, $values, $expected)
     {
         $property = $this->reflection->getProperty('_validates');
         $property->setAccessible(true);
 //        $property->setValue([]);
-        $property->setValue([$this->model->className() =>[$validate_of => $options]]);
+        $property->setValue([$this->model->className() => [$validate_of => $options]]);
         foreach ($values as $field => $value) {
             $this->model->$field = $value;
         }

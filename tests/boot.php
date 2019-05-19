@@ -1,5 +1,6 @@
 <?php
 include __DIR__ . '/../vendor/autoload.php';
+
 use Doctrine\ORM\Configuration,
     Doctrine\ORM\EntityManager;
 
@@ -8,12 +9,9 @@ foreach (glob(__DIR__ . '/models/*.php') as $file) {
 }
 include_once __DIR__ . '/EM.php';
 $params     = [
-    'driver'        => 'pdo_mysql',
-    'host'          => '127.0.0.1',
-    'dbname'        => 'foo',
-    'user'          => 'root',
-    'password'      => '',
-    'service'       => true,
+    'driver'        => 'pdo_sqlite',
+    'path'          => __DIR__ . '/foo.db',
+    'memory'        => true,
     'charset'       => 'UTF8',
     'driverOptions' => ['charset' => 'UTF8'],
 ];

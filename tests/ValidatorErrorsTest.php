@@ -1,4 +1,5 @@
 <?php
+
 use PHPUnit\Framework\TestCase;
 
 class ValidatorErrorsTest extends TestCase
@@ -9,7 +10,7 @@ class ValidatorErrorsTest extends TestCase
      */
     private $error;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->error = new \Paliari\Doctrine\ValidatorErrors();
     }
