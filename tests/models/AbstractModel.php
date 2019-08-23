@@ -1,6 +1,6 @@
 <?php
 
-class AbstractModel implements \Paliari\Doctrine\InterfaceModel
+class AbstractModel implements \Paliari\Doctrine\ModelValidatorInterface
 {
 
     use \Paliari\Doctrine\TraitValidatorModel;

@@ -4,7 +4,7 @@ namespace Paliari\Doctrine;
 
 use Doctrine\ORM\EntityManager;
 
-interface InterfaceModel
+interface ModelValidatorInterface
 {
 
     /**
@@ -15,7 +15,7 @@ interface InterfaceModel
     public static function getValidates($name);
 
     /**
-     * @param $throw
+     * @param bool $throw
      *
      * @return bool
      */

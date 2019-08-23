@@ -47,14 +47,14 @@ class Validator
     ];
 
     /**
-     * @var InterfaceModel
+     * @var ModelValidatorInterface
      */
     protected $model;
 
     /**
      * Validator constructor.
      *
-     * @param InterfaceModel $model
+     * @param ModelValidatorInterface $model
      */
     public function __construct($model)
     {
