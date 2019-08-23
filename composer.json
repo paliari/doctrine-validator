@@ -6,7 +6,8 @@
     "homepage": "https://github.com/paliari/doctrine-validator",
     "require": {
         "php": "^7.3",
-        "doctrine/orm": "^2.6"
+        "doctrine/orm": "^2.6",
+        "paliari/php-utils": "^1.1"
     },
     "license": "MIT",
     "authors": [
@@ -21,7 +22,6 @@
         }
     },
     "require-dev": {
-        "phpunit/phpunit": "^8.1",
-        "paliari/php-utils": "^1.1"
+        "phpunit/phpunit": "^8.1"
     }
 }
