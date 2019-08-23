@@ -57,7 +57,7 @@ trait TraitValidatorModel
     public function _onDoToValidatePrePersist()
     {
         $this->record_state = Validator::CREATE;
-        $this->_validate();
+        $this->validate();
     }
 
     /**
@@ -74,7 +74,7 @@ trait TraitValidatorModel
     public function _onDoToValidatePreRemove()
     {
         $this->record_state = Validator::REMOVE;
-        $this->_validate();
+        $this->validate();
     }
 
     /**
@@ -83,10 +83,10 @@ trait TraitValidatorModel
     public function _onDoToValidatePreUpdate()
     {
         $this->record_state = Validator::UPDATE;
-        $this->_validate();
+        $this->validate();
     }
 
-    protected function _doValidation($action)
+    protected function actionValidation($action)
     {
         $action    .= '_validation';
         $callbacks = static::${$action} ?: [];
@@ -97,11 +97,11 @@ trait TraitValidatorModel
         }
     }
 
-    protected function _validate()
+    protected function validate()
     {
         $validated = $this->errors instanceof ValidatorErrors;
         if (!$validated) {
-            $this->_doValidation('before');
+            $this->actionValidation('before');
             $validator = new Validator($this);
             $validator->validate();
         }
@@ -109,14 +109,14 @@ trait TraitValidatorModel
             throw new ModelException($this->errors);
         }
         if (!$validated) {
-            $this->_doValidation('after');
+            $this->actionValidation('after');
         }
     }
 
     public function isValid($throw = false)
     {
         try {
-            $this->_validate();
+            $this->validate();
 
             return true;
         } catch (ModelException $e) {
