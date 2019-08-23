@@ -3,6 +3,7 @@
 namespace Paliari\Doctrine;
 
 use Exception;
+use Paliari\Doctrine\Validators\ModelCustomValidator;
 
 trait TraitValidatorModel
 {
@@ -138,6 +139,16 @@ trait TraitValidatorModel
         return Validator::CREATE == $this->record_state;
     }
 
+    public function isRemoveRecord()
+    {
+        return Validator::REMOVE == $this->record_state;
+    }
+
+    public function isUpdateRecord()
+    {
+        return Validator::UPDATE == $this->record_state;
+    }
+
     /**
      * @return string
      */
@@ -148,7 +159,18 @@ trait TraitValidatorModel
 
     public static function className()
     {
-        return get_called_class();
+        return static::class;
+    }
+
+    public static function addCustomValidator($callable)
+    {
+        ModelCustomValidator::i()->add(static::className(), $callable);
+        static::$validates_custom['validateModelCustom'] = [];
+    }
+
+    public function validateModelCustom()
+    {
+        ModelCustomValidator::i()->run(static::className(), $this);
     }
 
 }

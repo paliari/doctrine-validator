@@ -27,6 +27,16 @@ interface InterfaceModel
     public function isNewRecord();
 
     /**
+     * @return bool
+     */
+    public function isRemoveRecord();
+
+    /**
+     * @return bool
+     */
+    public function isUpdateRecord();
+
+    /**
      * @return string
      */
     public function recordState();
@@ -47,5 +57,12 @@ interface InterfaceModel
      * @return EntityManager
      */
     public static function getEm();
+
+    /**
+     * @param callable $callable
+     */
+    public static function addCustomValidator($callable);
+
+    public function validateModelCustom();
 
 }
