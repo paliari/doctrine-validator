@@ -2,6 +2,8 @@
 
 namespace Paliari\Doctrine;
 
+use Doctrine\ORM\EntityManager;
+
 interface InterfaceModel
 {
 
@@ -33,5 +35,17 @@ interface InterfaceModel
      * @return string
      */
     public static function className();
+
+    /**
+     * @param string $name
+     *
+     * @return string
+     */
+    public static function humAttribute($name);
+
+    /**
+     * @return EntityManager
+     */
+    public static function getEm();
 
 }
