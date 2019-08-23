@@ -1,7 +1,8 @@
 <?php
+
 namespace Paliari\Doctrine;
 
-use Doctrine\ORM\EntityManager;
+use Exception;
 
 trait TraitValidatorModel
 {
@@ -87,9 +88,9 @@ trait TraitValidatorModel
 
     protected function _doValidation($action)
     {
-        $action .= '_validation';
+        $action    .= '_validation';
         $callbacks = static::${$action} ?: [];
-        $action .= '_on_' . $this->recordState();
+        $action    .= '_on_' . $this->recordState();
         $callbacks = array_merge($callbacks, static::${$action} ?: []);
         foreach ($callbacks as $callback) {
             $this->$callback();
@@ -112,62 +113,17 @@ trait TraitValidatorModel
         }
     }
 
-    public function isValid()
-    {
-        return $this->tryAction(function () {
-            $this->_validate();
-        });
-    }
-
-    public function persist()
-    {
-        static::getEm()->persist($this);
-    }
-
-    /**
-     * @param bool $throw
-     *
-     * @return bool
-     * @throws ModelException
-     * @throws \Exception
-     */
-    public function save($throw = false)
-    {
-        $valid = $this->tryAction(function () {
-            $this->persist();
-            static::getEm()->flush($this);
-        }, $throw);
-        if (!$valid) {
-            @static::getEm()->clear($this);
-        }
-
-        return $valid;
-    }
-
-    /**
-     * @param bool $throw
-     *
-     * @return bool
-     */
-    public function destroy($throw = false)
-    {
-        return $this->tryAction(function () {
-            static::getEm()->remove($this);
-            static::getEm()->flush($this);
-        }, $throw);
-    }
-
-    private function tryAction($call, $throw = false)
+    public function isValid($throw = false)
     {
         try {
-            $call();
+            $this->_validate();
 
             return true;
         } catch (ModelException $e) {
             if ($throw) {
                 throw $e;
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             throw $e;
         }
 
@@ -190,23 +146,9 @@ trait TraitValidatorModel
         return $this->record_state ?: Validator::CREATE;
     }
 
-    /**
-     * @return EntityManager
-     * @throws \Exception
-     */
-    public static function getEm()
-    {
-        throw new \Exception('Method "getEm" not be implemented!');
-    }
-
     public static function className()
     {
         return get_called_class();
-    }
-
-    public static function humAttribute($name)
-    {
-        return $name;
     }
 
 }
