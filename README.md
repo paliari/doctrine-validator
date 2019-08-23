@@ -243,7 +243,9 @@ Create a `protected static` property with the callbacks inside your model. See t
 Para adicionar validator customizado é só uar o método statico no model *ModelName::addCustomValidator* 
 passando como argumento um *callable* que recebe como parametro o $model.
 
-Exemplo:
+To add custom validator just use the static method in model ModelName :: addCustomValidator passing as argument a callable that takes $model as parameter.
+
+Example:
 
 ```php
 MyModel::addCustomValidator(function($model) {
