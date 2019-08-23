@@ -2,7 +2,7 @@
 
 namespace Paliari\Doctrine;
 
-use Doctrine\Common\Util\Inflector;
+use Doctrine\Common\Inflector\Inflector;
 
 class ValidatorErrors
 {
