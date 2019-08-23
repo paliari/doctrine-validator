@@ -60,13 +60,13 @@ class Validator
     {
         $this->model                     = $model;
         $this->model->errors             = new ValidatorErrors();
-        $this->model->errors->model_name = $model->className();
+        $this->model->errors->model_name = $model::className();
         $this->init();
     }
 
     protected function init()
     {
-        $model_name = $this->model->className();
+        $model_name = $this->model::className();
         if (!isset(static::$_validates[$model_name])) {
             static::initValidates($model_name);
         }
@@ -104,7 +104,7 @@ class Validator
     {
         foreach (static::$_validations_names as $validation) {
             $validation_method = Inflector::camelize(str_replace('validates_', '', $validation));
-            $this->validates($validation_method, static::getValidates($this->model->className(), $validation));
+            $this->validates($validation_method, static::getValidates($this->model::className(), $validation));
         }
     }
 
@@ -274,7 +274,7 @@ class Validator
         foreach (A::get($options, 'scope', []) as $scope) {
             $criteria[$scope] = $this->model->{$scope};
         }
-        $olds = $this->model->getEm()->getRepository($this->model->className())->findBy($criteria, null, 1);
+        $olds = $this->model::getEm()->getRepository($this->model::className())->findBy($criteria, null, 1);
         $old  = A::get($olds, 0);
         if ($old && $old->id != $this->model->id) {
             $this->add($field, $this->getMessage($options, 'unique'));
