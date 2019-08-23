@@ -18,4 +18,13 @@ class AbstractModel implements \Paliari\Doctrine\InterfaceModel
         return EM::getEm();
     }
 
+    /**
+     * @param string $name
+     *
+     * @return string
+     */
+    public static function humAttribute($name)
+    {
+        return ucwords($name);
+    }
 }
