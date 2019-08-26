@@ -1,7 +1,7 @@
 {
     "name": "paliari/doctrine-validator",
     "description": "Advanced model validator for Doctrine ORM (based on ActiveRecord)",
-    "version": "1.4.4",
+    "version": "1.4.5",
     "type": "library",
     "homepage": "https://github.com/paliari/doctrine-validator",
     "require": {
