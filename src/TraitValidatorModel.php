@@ -2,6 +2,7 @@
 
 namespace Paliari\Doctrine;
 
+use Doctrine\ORM\Mapping as ORM;
 use Exception;
 use Paliari\Doctrine\Validators\ModelCustomValidator;
 
