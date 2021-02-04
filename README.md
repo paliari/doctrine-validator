@@ -263,6 +263,14 @@ MyModel::addCustomValidator('MyValidator::validate');
 
 ```
 
+
+## Development testing
+
+```bash
+docker-compose -f docker-compose-cli.yml run --rm cli composer install
+docker-compose -f docker-compose-cli.yml run --rm cli ./vendor/bin/phpunit
+```
+
 ## Authors
 
 - [Marcos Paliari](http://paliari.com.br)
