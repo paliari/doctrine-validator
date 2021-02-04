@@ -264,12 +264,29 @@ MyModel::addCustomValidator('MyValidator::validate');
 ```
 
 
-## Development testing
+## Development
+
+### Install dependencies
 
 ```bash
 docker-compose -f docker-compose-cli.yml run --rm cli composer install
+```
+
+### Testing
+
+```bash
 docker-compose -f docker-compose-cli.yml run --rm cli ./vendor/bin/phpunit
 ```
+
+### Publish a new version
+
+```bash
+# Generate a new tag
+docker-compose -f docker-compose-cli.yml run --rm cli ./vendor/bin/bump -g --version patch|minor|major
+
+git push && git push --tags
+```
+
 
 ## Authors
 
