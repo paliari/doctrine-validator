@@ -2,11 +2,8 @@
 
 namespace Paliari\Doctrine;
 
-use Doctrine\Common\Inflector\Inflector;
-
 class ValidatorErrors
 {
-
     /**
      * @var callable
      */
@@ -75,7 +72,7 @@ class ValidatorErrors
      */
     public function asJson()
     {
-        return [Inflector::tableize($this->model_name) => $this->toArray()];
+        return [InflectorService::getContext()->tableize($this->model_name) => $this->toArray()];
     }
 
     /**

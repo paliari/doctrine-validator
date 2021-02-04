@@ -27,6 +27,10 @@ trait TraitValidatorModel
     protected static $validates_exclusion_of    = [];
     protected static $validates_format_of       = [];
     protected static $validates_numericality_of = [];
+    /**
+     * @deprecated Usar outra estratégia para esta validação
+     * Estamos removendo a dependencia do EM no model.
+     */
     protected static $validates_uniqueness_of   = [];
     protected static $validates_custom          = [];
 
