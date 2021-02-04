@@ -6,7 +6,6 @@ use Paliari\Doctrine\Validators\FilterVarValidator,
     Paliari\Doctrine\Validators\LengthValidator,
     Paliari\Doctrine\Validators\NumberValidator,
     Paliari\Doctrine\Validators\BaseValidator,
-    Doctrine\Common\Inflector\Inflector,
     Paliari\Utils\A;
 
 class Validator
@@ -103,7 +102,7 @@ class Validator
     public function validate()
     {
         foreach (static::$_validations_names as $validation) {
-            $validation_method = Inflector::camelize(str_replace('validates_', '', $validation));
+            $validation_method = InflectorService::getContext()->camelize(str_replace('validates_', '', $validation));
             $this->validates($validation_method, static::getValidates($this->model::className(), $validation));
         }
     }
@@ -300,7 +299,7 @@ class Validator
     protected function comparatorThan($comparator, $value, $than)
     {
         if (in_array($comparator, static::$_comparators)) {
-            $method = 'check' . Inflector::classify($comparator);
+            $method = 'check' . InflectorService::getContext()->classify($comparator);
 
             return NumberValidator::instance()->$method($value, $than);
         }
