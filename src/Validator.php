@@ -258,7 +258,7 @@ class Validator
         }
         foreach ($options as $comparator => $than) {
             if (!$this->comparatorThan($comparator, $value, $than)) {
-                $this->add($field, $this->getMessage($options, 'not_' . $comparator), $than);
+                $this->add($field, $this->getMessage($options, $comparator), $than);
             }
         }
     }
