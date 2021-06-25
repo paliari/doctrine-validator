@@ -9,35 +9,35 @@ class ValidatorErrors
      */
     public static $custom_get_message;
 
-    public static $_default_messages = [
-        'inclusion'                => 'is not included in the list',
-        'exclusion'                => 'is reserved',
-        'invalid'                  => 'is invalid',
-        'confirmation'             => "doesn't match confirmation",
-        'accepted'                 => 'must be accepted',
-        'empty'                    => "can't be empty",
-        'blank'                    => "can't be blank",
-        'too_long'                 => 'is too long (maximum is %{count} characters)',
-        'too_short'                => 'is too short (minimum is %{count} characters)',
-        'wrong_length'             => 'is the wrong length (should be %{count} characters)',
-        'taken'                    => 'has already been taken',
-        'not_a_number'             => 'is not a number',
-        'not_a_integer'            => 'is not a integer',
-        'greater_than'             => 'must be greater than %{count}',
-        'equal_to'                 => 'must be equal to %{count}',
-        'less_than'                => 'must be less than %{count}',
-        'odd'                      => 'must be odd',
-        'even'                     => 'must be even',
-        'unique'                   => 'must be unique',
-        'less_than_or_equal_to'    => 'must be less than or equal to %{count}',
+    public static array $_default_messages = [
+        'inclusion' => 'is not included in the list',
+        'exclusion' => 'is reserved',
+        'invalid' => 'is invalid',
+        'confirmation' => "doesn't match confirmation",
+        'accepted' => 'must be accepted',
+        'empty' => "can't be empty",
+        'blank' => "can't be blank",
+        'too_long' => 'is too long (maximum is %{count} characters)',
+        'too_short' => 'is too short (minimum is %{count} characters)',
+        'wrong_length' => 'is the wrong length (should be %{count} characters)',
+        'taken' => 'has already been taken',
+        'not_a_number' => 'is not a number',
+        'not_a_integer' => 'is not a integer',
+        'greater_than' => 'must be greater than %{count}',
+        'equal_to' => 'must be equal to %{count}',
+        'less_than' => 'must be less than %{count}',
+        'odd' => 'must be odd',
+        'even' => 'must be even',
+        'unique' => 'must be unique',
+        'less_than_or_equal_to' => 'must be less than or equal to %{count}',
         'greater_than_or_equal_to' => 'must be greater than or equal to %{count}',
     ];
 
-    public $model_name = '';
+    public string $model_name = '';
 
-    protected $messages = [];
+    protected array $messages = [];
 
-    public static function getDefaultMessage($key)
+    public static function getDefaultMessage(string $key): ?string
     {
         if (static::$custom_get_message) {
             return call_user_func(static::$custom_get_message, $key);
@@ -46,18 +46,12 @@ class ValidatorErrors
         return static::$_default_messages[$key];
     }
 
-    public function isValid()
+    public function isValid(): bool
     {
         return empty($this->messages);
     }
 
-    /**
-     * @param string $attribute
-     * @param string $msg
-     *
-     * @return $this
-     */
-    public function add($attribute, $msg)
+    public function add(string $attribute, string $msg): self
     {
         if (!($msg)) {
             $msg = static::getDefaultMessage('invalid');
@@ -67,10 +61,7 @@ class ValidatorErrors
         return $this;
     }
 
-    /**
-     * @return array
-     */
-    public function asJson()
+    public function asJson(): array
     {
         return [InflectorService::getContext()->tableize($this->model_name) => $this->toArray()];
     }
@@ -78,15 +69,15 @@ class ValidatorErrors
     /**
      * @return array
      */
-    public function toArray()
+    public function toArray(): array
     {
         return $this->messages;
     }
 
-    public function __toString()
+    public function __toString(): string
     {
         $model = $this->model_name;
-        $str   = '';
+        $str = '';
         foreach ($this->messages as $k => $errors) {
             $str .= $model::humAttribute($k) . ': ' . implode(', ', $errors) . "\n";
         }

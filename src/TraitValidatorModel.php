@@ -8,40 +8,37 @@ use Paliari\Doctrine\Validators\ModelCustomValidator;
 
 trait TraitValidatorModel
 {
-
     protected $record_state = '';
 
-    protected static $before_validation           = [];
-    protected static $after_validation            = [];
+    protected static $before_validation = [];
+    protected static $after_validation = [];
     protected static $before_validation_on_create = [];
-    protected static $after_validation_on_create  = [];
+    protected static $after_validation_on_create = [];
     protected static $before_validation_on_update = [];
-    protected static $after_validation_on_update  = [];
+    protected static $after_validation_on_update = [];
     protected static $before_validation_on_remove = [];
-    protected static $after_validation_on_remove  = [];
+    protected static $after_validation_on_remove = [];
 
-    protected static $validates_presence_of     = [];
-    protected static $validates_size_of         = [];
-    protected static $validates_length_of       = [];
-    protected static $validates_inclusion_of    = [];
-    protected static $validates_exclusion_of    = [];
-    protected static $validates_format_of       = [];
+    protected static $validates_presence_of = [];
+    protected static $validates_size_of = [];
+    protected static $validates_length_of = [];
+    protected static $validates_inclusion_of = [];
+    protected static $validates_exclusion_of = [];
+    protected static $validates_format_of = [];
     protected static $validates_numericality_of = [];
     /**
      * @deprecated Usar outra estratégia para esta validação
      * Estamos removendo a dependencia do EM no model.
      */
-    protected static $validates_uniqueness_of   = [];
-    protected static $validates_custom          = [];
+    protected static $validates_uniqueness_of = [];
+    protected static $validates_custom = [];
 
     /**
-     * @param string $name
-     *
-     * @return array
+     * @return callable[]
      */
-    public static function getValidates($name)
+    public static function getValidates(string $name): array
     {
-        return @static::${$name} ?: [];
+        return static::${$name} ?? [];
     }
 
     /**
@@ -94,16 +91,16 @@ trait TraitValidatorModel
 
     protected function actionValidation($action)
     {
-        $action    .= '_validation';
+        $action .= '_validation';
         $callbacks = static::${$action} ?: [];
-        $action    .= '_on_' . $this->recordState();
+        $action .= '_on_' . $this->recordState();
         $callbacks = array_merge($callbacks, static::${$action} ?: []);
         foreach ($callbacks as $callback) {
             $this->$callback();
         }
     }
 
-    protected function validate()
+    protected function validate(): void
     {
         $validated = $this->errors instanceof ValidatorErrors;
         if (!$validated) {
@@ -119,7 +116,7 @@ trait TraitValidatorModel
         }
     }
 
-    public function isValid($throw = false)
+    public function isValid(bool $throw = false): bool
     {
         try {
             $this->validate();
@@ -136,46 +133,39 @@ trait TraitValidatorModel
         return false;
     }
 
-    /**
-     * @return bool
-     */
-    public function isNewRecord()
+    public function isNewRecord(): bool
     {
         return Validator::CREATE == $this->record_state;
     }
 
-    public function isRemoveRecord()
+    public function isRemoveRecord(): bool
     {
         return Validator::REMOVE == $this->record_state;
     }
 
-    public function isUpdateRecord()
+    public function isUpdateRecord(): bool
     {
         return Validator::UPDATE == $this->record_state;
     }
 
-    /**
-     * @return string
-     */
-    public function recordState()
+    public function recordState(): string
     {
         return $this->record_state ?: Validator::CREATE;
     }
 
-    public static function className()
+    public static function className(): string
     {
         return static::class;
     }
 
-    public static function addCustomValidator($callable)
+    public static function addCustomValidator($callable): void
     {
         ModelCustomValidator::i()->add(static::className(), $callable);
         static::$validates_custom['validateModelCustom'] = [];
     }
 
-    public function validateModelCustom()
+    public function validateModelCustom(): void
     {
         ModelCustomValidator::i()->run(static::className(), $this);
     }
-
 }

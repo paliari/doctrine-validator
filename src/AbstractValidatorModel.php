@@ -14,7 +14,5 @@ use Doctrine\ORM\Mapping as ORM;
  */
 abstract class AbstractValidatorModel implements ModelValidatorInterface
 {
-
     use TraitValidatorModel;
-
 }

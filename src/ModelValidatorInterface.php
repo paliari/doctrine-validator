@@ -6,63 +6,31 @@ use Doctrine\ORM\EntityManager;
 
 interface ModelValidatorInterface
 {
+    public function isValid(bool $throw = false): bool;
+
+    public function isNewRecord(): bool;
+
+    public function isRemoveRecord(): bool;
+
+    public function isUpdateRecord(): bool;
+
+    public function recordState(): string;
+
+    public static function className(): string;
+
+    public static function humAttribute(string $name): ?string;
+
+    public static function addCustomValidator(callable $callable): void;
+
+    public function validateModelCustom(): void;
 
     /**
-     * @param string $name
-     *
-     * @return array
+     * @return callable[]
      */
-    public static function getValidates($name);
-
-    /**
-     * @param bool $throw
-     *
-     * @return bool
-     */
-    public function isValid($throw = false);
-
-    /**
-     * @return bool
-     */
-    public function isNewRecord();
-
-    /**
-     * @return bool
-     */
-    public function isRemoveRecord();
-
-    /**
-     * @return bool
-     */
-    public function isUpdateRecord();
-
-    /**
-     * @return string
-     */
-    public function recordState();
-
-    /**
-     * @return string
-     */
-    public static function className();
-
-    /**
-     * @param string $name
-     *
-     * @return string
-     */
-    public static function humAttribute($name);
+    public static function getValidates(string $name): array;
 
     /**
      * @return EntityManager
      */
-    public static function getEm();
-
-    /**
-     * @param callable $callable
-     */
-    public static function addCustomValidator($callable);
-
-    public function validateModelCustom();
-
+    public static function getEM();
 }

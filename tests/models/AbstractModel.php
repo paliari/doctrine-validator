@@ -13,7 +13,7 @@ class AbstractModel implements \Paliari\Doctrine\ModelValidatorInterface
     /**
      * @return \Doctrine\ORM\EntityManager
      */
-    public static function getEm()
+    public static function getEM()
     {
         return EM::getEm();
     }
@@ -23,7 +23,7 @@ class AbstractModel implements \Paliari\Doctrine\ModelValidatorInterface
      *
      * @return string
      */
-    public static function humAttribute($name)
+    public static function humAttribute(string $name): string
     {
         return ucwords($name);
     }
