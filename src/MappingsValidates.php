@@ -2,17 +2,16 @@
 
 namespace Paliari\Doctrine;
 
-use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\Types;
 use Paliari\Utils\A;
 
 class MappingsValidates
 {
-
     public static $cache = [];
 
-    protected static $_type_int     = [Type::INTEGER, Type::BIGINT, Type::SMALLINT];
-    protected static $_type_numeric = [Type::FLOAT, Type::DECIMAL];
-    protected static $_type_string  = [Type::STRING, Type::TEXT];
+    protected static $_type_int = [Types::INTEGER, Types::BIGINT, Types::SMALLINT];
+    protected static $_type_numeric = [Types::FLOAT, Types::DECIMAL];
+    protected static $_type_string = [Types::STRING, Types::TEXT];
 
     /**
      * @param string $model_name
@@ -45,16 +44,15 @@ class MappingsValidates
                 if ($is_int || in_array($type, static::$_type_numeric)) {
                     $numericality[$field] = ['only_integer' => $is_int, 'allow_blank' => $map['nullable']];
                 }
-                if (Type::BOOLEAN == $type) {
+                if (Types::BOOLEAN == $type) {
                     $inclusion[$field] = ['in' => [true, false], 'allow_blank' => $map['nullable']];
                 }
             }
         }
         static::$cache[$model_name] = [
-            'validates_length_of'       => $length,
+            'validates_length_of' => $length,
             'validates_numericality_of' => $numericality,
-            'validates_inclusion_of'    => $inclusion,
+            'validates_inclusion_of' => $inclusion,
         ];
     }
-
 }

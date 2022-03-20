@@ -2,7 +2,7 @@ version: '3.5'
 
 services:
   cli:
-    image: paliari/apache-php8-oci8:1.1.0-dev
+    image: paliari/apache-php8-oci8:1.3.0-dev
     command: bash
     user: '1000:1000'
     volumes:

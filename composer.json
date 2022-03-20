@@ -6,8 +6,8 @@
     "homepage": "https://github.com/paliari/doctrine-validator",
     "require": {
         "php": "^8.0",
-        "doctrine/orm": "^2.8",
-        "paliari/php-utils": "^1.2"
+        "doctrine/orm": "^2.11",
+        "paliari/php-utils": "^2.0"
     },
     "license": "MIT",
     "authors": [
