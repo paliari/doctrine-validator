@@ -1,14 +1,14 @@
 <?php
+
 namespace Paliari\Doctrine\Validators;
 
 class LengthValidator extends BaseValidator
 {
-
     public static $ENCODING = 'UTF-8';
 
     /**
      * @param string $value
-     * @param int    $minimum
+     * @param int $minimum
      *
      * @return bool
      */
@@ -19,7 +19,7 @@ class LengthValidator extends BaseValidator
 
     /**
      * @param string $value
-     * @param int    $maximum
+     * @param int $maximum
      *
      * @return bool
      */
@@ -30,7 +30,7 @@ class LengthValidator extends BaseValidator
 
     /**
      * @param string $value
-     * @param int    $length
+     * @param int $length
      *
      * @return bool
      */
@@ -57,7 +57,6 @@ class LengthValidator extends BaseValidator
      */
     protected function strLen($value, $encoding)
     {
-        return mb_strlen($value, $encoding);
+        return mb_strlen((string)$value, $encoding);
     }
-
 }
