@@ -10,8 +10,7 @@ use Paliari\Doctrine\Validators\FilterVarValidator,
 
 class Validator
 {
-
-    const SAVE   = 'save';
+    const SAVE = 'save';
     const CREATE = 'create';
     const UPDATE = 'update';
     const REMOVE = 'remove';
@@ -42,7 +41,7 @@ class Validator
         'less_than',
         'less_than_or_equal_to',
         'equal_to',
-        'other_than'
+        'other_than',
     ];
 
     /**
@@ -57,8 +56,8 @@ class Validator
      */
     public function __construct($model)
     {
-        $this->model                     = $model;
-        $this->model->errors             = new ValidatorErrors();
+        $this->model = $model;
+        $this->model->errors = new ValidatorErrors();
         $this->model->errors->model_name = $model::className();
         $this->init();
     }
@@ -111,7 +110,7 @@ class Validator
     {
         foreach ($attributes as $field => $options) {
             if (is_string($options)) {
-                $field   = $options;
+                $field = $options;
                 $options = [];
             }
             if (!$this->skipValidation($field, $options)) {
@@ -146,7 +145,7 @@ class Validator
 
     /**
      * @param string $field
-     * @param array  $options
+     * @param array $options
      */
     public function presenceOf($field, $options)
     {
@@ -157,7 +156,7 @@ class Validator
 
     /**
      * @param string $field
-     * @param array  $options
+     * @param array $options
      */
     public function sizeOf($field, $options)
     {
@@ -166,14 +165,14 @@ class Validator
 
     /**
      * @param string $field
-     * @param array  $options
+     * @param array $options
      */
     public function lengthOf($field, $options)
     {
-        $value     = $this->model->$field;
+        $value = $this->model->$field;
         $validator = LengthValidator::instance();
         if ($in = $this->getInLengthOf($options)) {
-            list($minimum, $maximum) = $in;
+            [$minimum, $maximum] = $in;
         } else {
             $minimum = A::get($options, 'minimum');
             $maximum = A::get($options, 'maximum');
@@ -203,7 +202,7 @@ class Validator
 
     /**
      * @param string $field
-     * @param array  $options
+     * @param array $options
      */
     public function inclusionOf($field, $options)
     {
@@ -215,7 +214,7 @@ class Validator
 
     /**
      * @param string $field
-     * @param array  $options
+     * @param array $options
      */
     public function exclusionOf($field, $options)
     {
@@ -227,7 +226,7 @@ class Validator
 
     /**
      * @param string $field
-     * @param array  $options
+     * @param array $options
      */
     public function formatOf($field, $options)
     {
@@ -245,7 +244,7 @@ class Validator
 
     /**
      * @param string $field
-     * @param array  $options
+     * @param array $options
      */
     public function numericalityOf($field, $options)
     {
@@ -265,7 +264,7 @@ class Validator
 
     /**
      * @param string $field
-     * @param array  $options
+     * @param array $options
      */
     public function uniquenessOf($field, $options)
     {
@@ -274,7 +273,7 @@ class Validator
             $criteria[$scope] = $this->model->{$scope};
         }
         $olds = $this->model::getEm()->getRepository($this->model::className())->findBy($criteria, null, 1);
-        $old  = A::get($olds, 0);
+        $old = A::get($olds, 0);
         if ($old && $old->id != $this->model->id) {
             $this->add($field, $this->getMessage($options, 'unique'));
         }
@@ -282,7 +281,7 @@ class Validator
 
     /**
      * @param string $method
-     * @param array  $options
+     * @param array $options
      */
     public function custom($method, $options = null)
     {
@@ -291,8 +290,8 @@ class Validator
 
     /**
      * @param string $comparator
-     * @param mixed  $value
-     * @param float  $than
+     * @param mixed $value
+     * @param float $than
      *
      * @return bool
      */
@@ -308,7 +307,7 @@ class Validator
     }
 
     /**
-     * @param mixed  $value
+     * @param mixed $value
      * @param string $filter
      *
      * @return bool
@@ -349,7 +348,7 @@ class Validator
     }
 
     /**
-     * @param array  $options
+     * @param array $options
      * @param string $key
      *
      * @return string
@@ -361,7 +360,7 @@ class Validator
 
     /**
      * @param string $message
-     * @param mixed  $replace
+     * @param mixed $replace
      * @param string $search
      *
      * @return string
@@ -374,7 +373,7 @@ class Validator
     /**
      * @param string $field
      * @param string $message
-     * @param mixed  $replace
+     * @param mixed $replace
      * @param string $search
      */
     protected function add($field, $message, $replace = null, $search = '%{count}')
@@ -389,5 +388,4 @@ class Validator
     {
         return A::merge($a1, $a2);
     }
-
 }

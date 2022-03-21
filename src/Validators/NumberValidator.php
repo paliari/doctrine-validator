@@ -1,9 +1,9 @@
 <?php
+
 namespace Paliari\Doctrine\Validators;
 
 class NumberValidator extends BaseValidator
 {
-
     /**
      * @param mixed $value
      *
@@ -36,7 +36,7 @@ class NumberValidator extends BaseValidator
 
     /**
      * @param mixed $value
-     * @param int   $than
+     * @param int $than
      *
      * @return bool
      */
@@ -47,7 +47,7 @@ class NumberValidator extends BaseValidator
 
     /**
      * @param mixed $value
-     * @param int   $than
+     * @param int $than
      *
      * @return bool
      */
@@ -58,7 +58,7 @@ class NumberValidator extends BaseValidator
 
     /**
      * @param mixed $value
-     * @param int   $than
+     * @param int $than
      *
      * @return bool
      */
@@ -69,7 +69,7 @@ class NumberValidator extends BaseValidator
 
     /**
      * @param mixed $value
-     * @param int   $than
+     * @param int $than
      *
      * @return bool
      */
@@ -85,5 +85,4 @@ class NumberValidator extends BaseValidator
     {
         return FilterVarValidator::instance();
     }
-
 }

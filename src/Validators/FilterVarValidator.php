@@ -6,25 +6,24 @@ use Exception;
 
 class FilterVarValidator extends BaseValidator
 {
-
-    const BOOLEAN     = 'boolean';
-    const EMAIL       = 'email';
-    const FLOAT       = 'float';
-    const INTEGER     = 'integer';
-    const IP          = 'ip';
+    const BOOLEAN = 'boolean';
+    const EMAIL = 'email';
+    const FLOAT = 'float';
+    const INTEGER = 'integer';
+    const IP = 'ip';
     const MAC_ADDRESS = 'mac_address';
-    const URL         = 'url';
+    const URL = 'url';
 
     protected static $_customs = [];
 
     protected static $_types = [
-        self::BOOLEAN     => FILTER_VALIDATE_BOOLEAN,
-        self::EMAIL       => FILTER_VALIDATE_EMAIL,
-        self::FLOAT       => FILTER_VALIDATE_FLOAT,
-        self::INTEGER     => FILTER_VALIDATE_INT,
-        self::IP          => FILTER_VALIDATE_IP,
+        self::BOOLEAN => FILTER_VALIDATE_BOOLEAN,
+        self::EMAIL => FILTER_VALIDATE_EMAIL,
+        self::FLOAT => FILTER_VALIDATE_FLOAT,
+        self::INTEGER => FILTER_VALIDATE_INT,
+        self::IP => FILTER_VALIDATE_IP,
         self::MAC_ADDRESS => FILTER_VALIDATE_MAC,
-        self::URL         => FILTER_VALIDATE_URL,
+        self::URL => FILTER_VALIDATE_URL,
     ];
 
     public static function add($filter, $callback)
@@ -36,7 +35,7 @@ class FilterVarValidator extends BaseValidator
     }
 
     /**
-     * @param mixed  $value
+     * @param mixed $value
      * @param string $filter
      *
      * @return bool
@@ -54,7 +53,7 @@ class FilterVarValidator extends BaseValidator
     }
 
     /**
-     * @param mixed  $value
+     * @param mixed $value
      * @param string $filter
      *
      * @return bool
@@ -133,5 +132,4 @@ class FilterVarValidator extends BaseValidator
     {
         return $this->check($value, self::URL);
     }
-
 }

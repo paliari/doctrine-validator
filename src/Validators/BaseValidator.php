@@ -1,9 +1,9 @@
 <?php
+
 namespace Paliari\Doctrine\Validators;
 
 class BaseValidator
 {
-
     protected static $_instances = [];
 
     /**
@@ -70,7 +70,7 @@ class BaseValidator
 
     /**
      * @param mixed $value
-     * @param int   $than
+     * @param int $than
      *
      * @return bool
      */
@@ -81,7 +81,7 @@ class BaseValidator
 
     /**
      * @param mixed $value
-     * @param int   $than
+     * @param int $than
      *
      * @return bool
      */
@@ -89,5 +89,4 @@ class BaseValidator
     {
         return $value != $than;
     }
-
 }

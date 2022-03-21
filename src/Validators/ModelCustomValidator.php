@@ -9,7 +9,6 @@ namespace Paliari\Doctrine\Validators;
  */
 class ModelCustomValidator
 {
-
     protected $_validators = [];
 
     protected static $_instance;
@@ -27,7 +26,7 @@ class ModelCustomValidator
     }
 
     /**
-     * @param string   $key
+     * @param string $key
      * @param callable $validator deve receber o model no parametro
      *
      * @return $this
@@ -45,10 +44,9 @@ class ModelCustomValidator
      */
     public function run(string $key, $model)
     {
-        $validators = isset($this->_validators[$key]) ? $this->_validators[$key] : [];
+        $validators = $this->_validators[$key] ?? [];
         foreach ($validators as $call) {
             call_user_func($call, $model);
         }
     }
-
 }
