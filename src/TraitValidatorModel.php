@@ -36,7 +36,7 @@ trait TraitValidatorModel
         return static::${$name} ?? [];
     }
 
-    public ?ValidatorErrors $errors;
+    public ?ValidatorErrors $errors = null;
 
     protected function actionValidation($action)
     {
