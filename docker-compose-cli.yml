@@ -9,3 +9,4 @@ services:
       - .:/var/www/html
       - ~/.composer:/root/.composer
       - ~/.gitconfig:/.gitconfig
+      - ~/.gitconfig.user:/.gitconfig.user
