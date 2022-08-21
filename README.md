@@ -1,7 +1,7 @@
 # doctrine-validator
 ## Installation
 
-	$ composer require paliari/doctrine-validator
+	composer require paliari/doctrine-validator
 
 ## Configuration
 
