@@ -6,7 +6,11 @@ use Doctrine\ORM\EntityManager;
 
 interface ModelValidatorInterface
 {
+    public function validate(): void;
+
     public function isValid(bool $throw = false): bool;
+
+    public function setRecordState(string $recordState): void;
 
     public function isNewRecord(): bool;
 

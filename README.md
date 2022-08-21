@@ -22,7 +22,7 @@ class YourModel
      *
      * @return \Doctrine\ORM\EntityManager
      */
-    public static function getEm()
+    public static function getEM()
     {
         // return EntityManager
     }
@@ -45,15 +45,22 @@ class YourModel extends \Paliari\Doctrine\AbstractValidatorModel
      *
      * @return \Doctrine\ORM\EntityManager
      */
-    public static function getEm()
+    public static function getEM()
     {
         // return EntityManager
     }
-
 }
 
 ```
 
+### Initialize validator
+
+Add in your bootstrap:
+
+```php
+$eventManager = $entityManager->getEventManager();
+$eventManager->addEventSubscriber(new \Paliari\Doctrine\ModelValidatorEventSubscriber());
+```
 
 ## Usage
 

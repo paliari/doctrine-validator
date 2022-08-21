@@ -7,10 +7,10 @@
 class MyModel extends \AbstractModel
 {
 
-    protected static $validates_format_of = [
+    protected static array $validates_format_of = [
         'email' => ['with' => 'email'],
     ];
-    protected static $validates_custom = ['count'];
+    protected static array $validates_custom = ['count'];
 
     /**
      * Primary Key column.

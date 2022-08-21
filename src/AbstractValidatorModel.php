@@ -12,6 +12,8 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @package Paliari\Doctrine
  */
+#[ORM\MappedSuperclass]
+#[ORM\HasLifecycleCallbacks]
 abstract class AbstractValidatorModel implements ModelValidatorInterface
 {
     use TraitValidatorModel;

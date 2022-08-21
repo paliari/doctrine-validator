@@ -2,36 +2,31 @@
 
 namespace Paliari\Doctrine;
 
-use Doctrine\ORM\Mapping as ORM;
 use Exception;
 use Paliari\Doctrine\Validators\ModelCustomValidator;
 
 trait TraitValidatorModel
 {
-    protected $record_state = '';
+    protected string $record_state = '';
 
-    protected static $before_validation = [];
-    protected static $after_validation = [];
-    protected static $before_validation_on_create = [];
-    protected static $after_validation_on_create = [];
-    protected static $before_validation_on_update = [];
-    protected static $after_validation_on_update = [];
-    protected static $before_validation_on_remove = [];
-    protected static $after_validation_on_remove = [];
+    protected static array $before_validation = [];
+    protected static array $after_validation = [];
+    protected static array $before_validation_on_create = [];
+    protected static array $after_validation_on_create = [];
+    protected static array $before_validation_on_update = [];
+    protected static array $after_validation_on_update = [];
+    protected static array $before_validation_on_remove = [];
+    protected static array $after_validation_on_remove = [];
 
-    protected static $validates_presence_of = [];
-    protected static $validates_size_of = [];
-    protected static $validates_length_of = [];
-    protected static $validates_inclusion_of = [];
-    protected static $validates_exclusion_of = [];
-    protected static $validates_format_of = [];
-    protected static $validates_numericality_of = [];
-    /**
-     * @deprecated Usar outra estratégia para esta validação
-     * Estamos removendo a dependencia do EM no model.
-     */
-    protected static $validates_uniqueness_of = [];
-    protected static $validates_custom = [];
+    protected static array $validates_presence_of = [];
+    protected static array $validates_size_of = [];
+    protected static array $validates_length_of = [];
+    protected static array $validates_inclusion_of = [];
+    protected static array $validates_exclusion_of = [];
+    protected static array $validates_format_of = [];
+    protected static array $validates_numericality_of = [];
+    protected static array $validates_uniqueness_of = [];
+    protected static array $validates_custom = [];
 
     /**
      * @return callable[]
@@ -41,53 +36,7 @@ trait TraitValidatorModel
         return static::${$name} ?? [];
     }
 
-    /**
-     * @var ValidatorErrors
-     */
-    public $errors;
-
-    /**
-     * @ORM\PostLoad
-     */
-    public function _onDoToValidatePostLoad()
-    {
-        $this->record_state = Validator::UPDATE;
-    }
-
-    /**
-     * @ORM\PrePersist
-     */
-    public function _onDoToValidatePrePersist()
-    {
-        $this->record_state = Validator::CREATE;
-        $this->validate();
-    }
-
-    /**
-     * @ORM\PostPersist
-     */
-    public function _onDoToValidatePostPersist()
-    {
-        $this->record_state = Validator::UPDATE;
-    }
-
-    /**
-     * @ORM\PreRemove
-     */
-    public function _onDoToValidatePreRemove()
-    {
-        $this->record_state = Validator::REMOVE;
-        $this->validate();
-    }
-
-    /**
-     * @ORM\PreUpdate
-     */
-    public function _onDoToValidatePreUpdate()
-    {
-        $this->record_state = Validator::UPDATE;
-        $this->validate();
-    }
+    public ?ValidatorErrors $errors;
 
     protected function actionValidation($action)
     {
@@ -100,7 +49,10 @@ trait TraitValidatorModel
         }
     }
 
-    protected function validate(): void
+    /**
+     * @throws ModelException
+     */
+    public function validate(): void
     {
         $validated = $this->errors instanceof ValidatorErrors;
         if (!$validated) {
@@ -146,6 +98,11 @@ trait TraitValidatorModel
     public function isUpdateRecord(): bool
     {
         return Validator::UPDATE == $this->record_state;
+    }
+
+    public function setRecordState(string $recordState): void
+    {
+        $this->record_state = $recordState;
     }
 
     public function recordState(): string
