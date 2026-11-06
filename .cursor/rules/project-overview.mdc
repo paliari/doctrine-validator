@@ -1,0 +1,38 @@
+---
+description: Visão geral, stack, comandos e compatibilidade da lib paliari/doctrine-validator
+alwaysApply: true
+---
+
+# paliari/doctrine-validator
+
+Biblioteca Composer (não é aplicação) que adiciona validações estilo ActiveRecord a entidades Doctrine ORM.
+
+## Stack
+- PHP `^8.2`, testado em 8.2 e 8.5. Recursos até o 8.2 são permitidos (`enum`, `readonly`, DNF types); não usar nada de 8.3+ (`#[\Override]`, constantes tipadas, `json_validate`).
+- Código sem Deprecated/Warning/Notice no 8.5: nada de parâmetro implicitamente nullable (`Foo $x = null` → `?Foo $x = null`), nem `null` para parâmetros string de funções nativas.
+- `doctrine/orm ^2.20 || ^3.0`: todo código precisa funcionar nas duas linhas. Ex.: `fieldMappings` são arrays no ORM 2 e objetos `FieldMapping` no ORM 3 (ArrayAccess deprecated), então leia via `MappingsValidates::mappingValue()`.
+- `paliari/php-utils ^2.0.2 || ^3.0` (use `Paliari\Utils\A` para acesso a arrays: `A::get`, `A::merge`).
+- PSR-4: `Paliari\Doctrine\` → `src/`.
+
+## Arquitetura
+- `TraitValidatorModel` / `AbstractValidatorModel`: API pública usada pelos models (`validate`, `isValid`, `recordState`, callbacks `before_/after_validation*`).
+- `Validator`: lê as props `protected static $validates_*_of` do model e despacha para `xxxOf()` via `camelize`.
+- `MappingsValidates`: gera validações default (length/numericality/inclusion) a partir do metadata Doctrine.
+- `ModelValidatorEventSubscriber`: liga `prePersist`/`preUpdate`/`preRemove` ao `validate()`.
+- `ValidatorErrors`: coleta mensagens; placeholders usam `%{count}`.
+- `Validators/*`: helpers stateless em singleton (`::instance()`; `ModelCustomValidator::i()`).
+
+## Comandos (sempre via Docker)
+`cli` = PHP 8.5, `cli82` = PHP 8.2. Rode os testes nos dois.
+```bash
+docker-compose -f docker-compose-cli.yml run --rm cli composer install
+docker-compose -f docker-compose-cli.yml run --rm cli ./vendor/bin/phpunit
+docker-compose -f docker-compose-cli.yml run --rm cli82 ./vendor/bin/phpunit
+```
+Para mudanças que tocam a integração com o Doctrine, rode também com ORM 2.20 e com `--prefer-lowest` (seção *Compatibility checks* do README) e restaure o `composer.lock` depois.
+
+## Compatibilidade e release
+- É uma lib pública: nomes de props `validates_*`, callbacks, opções (`if`, `unless`, `on`, `allow_nil`, `allow_blank`) e métodos do `ModelValidatorInterface` são API. Quebra → versão major.
+- Mudou comportamento ou opção? Atualize o `README.md` na mesma alteração.
+- Não editar `version` no `composer.json` à mão; o release usa `./vendor/bin/bump -g --version patch|minor|major`.
+- Commits em conventional commits (`feat:`, `fix:`, `docs:`, `test:`, `refactor:`, `chore:`).

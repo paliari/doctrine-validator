@@ -1,0 +1,21 @@
+---
+description: Checklist para criar ou alterar um validates_*_of ou callback de validação
+globs: src/Validator.php,src/TraitValidatorModel.php,src/ValidatorErrors.php,src/MappingsValidates.php,src/Validators/**/*.php
+alwaysApply: false
+---
+
+# Adicionando/alterando um validator
+
+Um `validates_foo_of` é ligado por convenção de nome; esquecer um passo faz a validação ser ignorada silenciosamente.
+
+1. `Validator::$_validations_names`: adicionar `'validates_foo_of'` (a ordem é a ordem de execução).
+2. `TraitValidatorModel`: declarar `protected static array $validates_foo_of = [];`.
+3. `Validator`: criar `public function fooOf($field, $options)` — o nome vem de `camelize(str_replace('validates_', '', ...))`.
+4. Lógica reutilizável vai num helper em `src/Validators/` (singleton `::instance()`), não inline no `Validator`.
+5. Mensagens novas em `ValidatorErrors::$_default_messages` (com `%{count}` se houver valor). Toda chave usada por `getMessage()` precisa existir lá.
+6. Se for default derivado do mapping Doctrine, incluir em `$_validations_default_names` e em `MappingsValidates::extractDefaultsValidates`.
+7. Garantir que as opções padrão (`if`, `unless`, `on`, `allow_nil`, `allow_blank`) continuam funcionando via `skipValidation`.
+8. Testes: casos em `dataProviderValidateOf` e `dataAllValidatesOf` (`tests/ValidatorTest.php`) + teste do helper em `tests/Validators/`.
+9. Documentar no `README.md` na seção *Validators* com opções e exemplo.
+
+Para callbacks (`before_validation_on_*`), o nome é montado em `TraitValidatorModel::actionValidation`: a prop estática precisa existir no trait.

@@ -1,0 +1,29 @@
+---
+description: Convenções de testes PHPUnit da lib
+globs: tests/**/*.php,phpunit.xml
+alwaysApply: false
+---
+
+# Testes
+
+- PHPUnit `^11.5` (a única linha que roda de PHP 8.2 a 8.5). Metadados só via attributes: `#[DataProvider('nome')]`, `#[Group('x')]`. Docblocks `@dataProvider` são deprecated no 11.
+- Data providers são `public static`. Classes no namespace global, arquivo `*Test.php`.
+- Rodar: `docker-compose -f docker-compose-cli.yml run --rm cli ./vendor/bin/phpunit` (PHP 8.5) e `... cli82 ...` (PHP 8.2); filtrar com `--filter NomeDoTeste`.
+- `phpunit.xml` falha em qualquer deprecation, notice ou warning. `ignoreSuppressionOfDeprecations` está ligado porque o Doctrine dispara deprecations com `@trigger_error`; o `boot.php` chama `Deprecation::enableWithTriggerError()`.
+
+## Bootstrap
+- `tests/boot.php` expõe `createEntityManager()`: SQLite em memória, `AttributeDriver` em `tests/models/` e `ModelValidatorEventSubscriber` registrado. Funciona com ORM 2.20 e 3.x (native lazy objects no PHP 8.4+, lazy ghost/proxy dir abaixo disso).
+- `EM` (tests/EM.php) guarda o EntityManager global. Para mockar, use `EM::setEm($mock)` e restaure o original no `tearDown`.
+- Testes de integração (`persist`/`flush`) criam um EntityManager próprio com `createEntityManager()` + `SchemaTool`, para não fechar o EM global em caso de exceção no flush.
+
+## Estilo
+- Preferir data providers com tabelas `[input..., expected]` para cobrir casos de borda (string vazia, `'0'`, `0`, `null`, multibyte como `'não'`).
+- Métodos protegidos do `Validator` são testados via `ReflectionClass` + `invokeProtectedMethod`. Não chamar `setAccessible()` (deprecated no 8.5) e, em propriedade estática, usar `setValue(null, $valor)`.
+- Mocks: `onlyMethods()` e `willReturn()` (`setMethods`/`returnValue` não existem mais).
+- Campos novos em `tests/models/MyModel.php` usam attributes `#[ORM\Column(...)]` coerentes (tipo, `length`, `nullable`), pois geram validações default.
+
+## Estado estático
+`Validator::$_validates` e `MappingsValidates::$cache` persistem entre testes. O `ValidatorTest::tearDown` zera `_validates`; ao configurar validações num teste, sobrescreva via reflection (como `testAllValidatesOf`) e não dependa da ordem de execução.
+
+## Regra
+Todo `fix:` vem com um caso de teste que reproduz o bug; todo `feat:` cobre o caminho feliz, o de erro e `allow_nil`/`allow_blank`.

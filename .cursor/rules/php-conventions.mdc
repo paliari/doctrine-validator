@@ -1,0 +1,33 @@
+---
+description: Convenções de código PHP do src/
+globs: src/**/*.php
+alwaysApply: false
+---
+
+# Convenções PHP (src/)
+
+## Nomes
+- Métodos em camelCase; propriedades e variáveis em snake_case (`$record_state`, `$model_name`).
+- Registries/caches estáticos internos com prefixo `_`: `$_validates`, `$_instances`, `$_types`.
+- Props de configuração do model seguem o padrão Rails: `validates_<nome>_of`, `before_validation_on_<estado>`.
+
+## Tipagem
+- Código novo ou alterado: tipar parâmetros e retornos (como em `TraitValidatorModel`), sem `declare(strict_types=1)` para não quebrar quem consome a lib.
+- Mantenha os docblocks `@param`/`@return` quando o tipo nativo não expressar tudo (ex.: `callable[]`, `@return static`).
+- Assinaturas do `ModelValidatorInterface` e do trait precisam ser compatíveis entre si.
+
+## Padrões
+- Validators em `src/Validators/` estendem `BaseValidator`, não guardam estado por model e são obtidos por `::instance()`.
+- Leitura de opções sempre com `A::get($options, 'key', $default)`, nunca `$options['key']` sem `isset`.
+- Estado de registro: use as constantes `Validator::CREATE|UPDATE|REMOVE|SAVE`, nunca strings soltas.
+- Mensagens: chave em `ValidatorErrors::$_default_messages`; nunca hardcode texto dentro de `Validator`.
+
+```php
+// ❌
+$this->model->errors->add($field, 'is too long');
+// ✅
+$this->add($field, $this->getMessage($options, 'too_long'), $maximum);
+```
+
+## Cuidado com estado estático
+`Validator::$_validates`, `MappingsValidates::$cache` e `ModelCustomValidator` são cacheados por classe de model durante todo o processo. Qualquer mudança que dependa de config do model precisa considerar esse cache.
