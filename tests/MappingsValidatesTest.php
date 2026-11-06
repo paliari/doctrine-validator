@@ -1,18 +1,18 @@
 <?php
 
+use PHPUnit\Framework\Attributes\DataProvider;
+
 class MappingsValidatesTest extends \PHPUnit\Framework\TestCase
 {
 
-    /**
-     * @dataProvider defaultsFieldsDataProvider
-     */
+    #[DataProvider('defaultsFieldsDataProvider')]
     public function testFieldsGetDefaults($model_name, $validation_name, $field, $expected)
     {
         $validation = \Paliari\Doctrine\MappingsValidates::getDefaults($model_name, $validation_name);
         $this->assertEquals($expected, $validation[$field]);
     }
 
-    public function defaultsFieldsDataProvider()
+    public static function defaultsFieldsDataProvider()
     {
         return [
             ['MyModel', 'validates_length_of', 'email', ['maximum' => 100, 'allow_blank' => false]],

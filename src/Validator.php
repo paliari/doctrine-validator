@@ -257,7 +257,7 @@ class Validator
         }
         foreach ($options as $comparator => $than) {
             if (!$this->comparatorThan($comparator, $value, $than)) {
-                $this->add($field, $this->getMessage($options, $comparator), $than);
+                $this->add($field, $this->getCustomOrDefaultMessage($options, $comparator), $than);
             }
         }
     }
@@ -355,7 +355,22 @@ class Validator
      */
     protected function getMessage($options, $key = 'invalid')
     {
-        return A::get($options, $key) ?: A::get($options, 'message') ?: $this->model->errors->getDefaultMessage($key);
+        return A::get($options, $key) ?: $this->getCustomOrDefaultMessage($options, $key);
+    }
+
+    /**
+     * Ignores `$options[$key]`, for keys whose option holds a value instead of a message (e.g. comparators).
+     *
+     * @param array $options
+     * @param string $key
+     *
+     * @return string
+     */
+    protected function getCustomOrDefaultMessage($options, $key)
+    {
+        return A::get($options, 'message')
+            ?: $this->model->errors->getDefaultMessage($key)
+            ?: $this->model->errors->getDefaultMessage('invalid');
     }
 
     /**
@@ -378,7 +393,7 @@ class Validator
      */
     protected function add($field, $message, $replace = null, $search = '%{count}')
     {
-        if ($replace) {
+        if (null !== $replace) {
             $message = $this->replaceMessage($message, $replace, $search);
         }
         $this->model->errors->add($field, $message);

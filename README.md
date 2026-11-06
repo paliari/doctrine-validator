@@ -1,20 +1,26 @@
 # doctrine-validator
+
+## Requirements
+
+- PHP 8.2 to 8.5
+- Doctrine ORM 2.20 or 3.x
+
 ## Installation
 
 	composer require paliari/doctrine-validator
 
 ## Configuration
 
-Include the TraitValidatorModel in your model
+Include the TraitValidatorModel in a base model and declare the validations in the models that extend it.
+
+> The trait already declares the `validates_*` and callback properties, so redeclaring them in the same class
+> that uses the trait is a PHP fatal error. Declare them in a subclass.
 
 ```php
 
-// Create your model extended to AbstractRansackModel.
-class YourModel
+abstract class BaseModel implements \Paliari\Doctrine\ModelValidatorInterface
 {
     use \Paliari\Doctrine\TraitValidatorModel;
-
-    //... fields ...
 
     /**
      * Override the method getEm is required.
@@ -27,6 +33,17 @@ class YourModel
         // return EntityManager
     }
 
+    public static function humAttribute(string $name): ?string
+    {
+        return ucwords($name);
+    }
+}
+
+class YourModel extends BaseModel
+{
+    protected static array $validates_presence_of = ['email'];
+
+    //... fields ...
 }
 
 ```
@@ -48,6 +65,11 @@ class YourModel extends \Paliari\Doctrine\AbstractValidatorModel
     public static function getEM()
     {
         // return EntityManager
+    }
+
+    public static function humAttribute(string $name): ?string
+    {
+        return ucwords($name);
     }
 }
 
@@ -141,6 +163,9 @@ Create a `protected static` property inside your model to validate. See the avai
         'another_field' => ['only_integer' => true]
     ];
     ```
+
+    > comparator errors use the default messages with the value, e.g. `must be greater than 5`.
+    > Use the `message` option to override them (`%{count}` is replaced by the value).
 
 - **validates_uniqueness_of**
   - Options: `scope`
@@ -281,8 +306,28 @@ docker-compose -f docker-compose-cli.yml run --rm cli composer install
 
 ### Testing
 
+The `cli` service runs PHP 8.5 and `cli82` runs PHP 8.2 (the minimum supported version).
+The test suite fails on any deprecation, notice or warning.
+
 ```bash
 docker-compose -f docker-compose-cli.yml run --rm cli ./vendor/bin/phpunit
+docker-compose -f docker-compose-cli.yml run --rm cli82 ./vendor/bin/phpunit
+```
+
+### Compatibility checks
+
+The `composer.lock` uses Doctrine ORM 3. To test against ORM 2.20 or the lowest supported dependencies,
+change the lock temporarily and restore it afterwards:
+
+```bash
+# Doctrine ORM 2.20
+docker-compose -f docker-compose-cli.yml run --rm cli composer update doctrine/orm --with doctrine/orm:^2.20 -W
+
+# Lowest supported dependencies
+docker-compose -f docker-compose-cli.yml run --rm cli82 composer update --prefer-lowest --prefer-stable
+
+# Restore
+git checkout composer.lock && docker-compose -f docker-compose-cli.yml run --rm cli composer install
 ```
 
 ### Publish a new version

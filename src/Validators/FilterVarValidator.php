@@ -49,7 +49,7 @@ class FilterVarValidator extends BaseValidator
             return $this->checkCustom($value, $filter);
         }
 
-        return 1 === preg_match($filter, $value);
+        return 1 === preg_match($filter, $value ?? '');
     }
 
     /**

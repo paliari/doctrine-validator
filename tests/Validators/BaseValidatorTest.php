@@ -1,14 +1,15 @@
 <?php
 
+use PHPUnit\Framework\Attributes\DataProvider;
+
 class BaseValidatorTest extends \PHPUnit\Framework\TestCase
 {
 
     /**
      * @param mixed $value
      * @param bool  $expected
-     *
-     * @dataProvider isBlankProvider
      */
+    #[DataProvider('isBlankProvider')]
     public function testIsBlank($value, $expected)
     {
         if ($expected) {
@@ -18,7 +19,7 @@ class BaseValidatorTest extends \PHPUnit\Framework\TestCase
         }
     }
 
-    public function isBlankProvider()
+    public static function isBlankProvider()
     {
         return [
             ['.', false],
@@ -40,9 +41,8 @@ class BaseValidatorTest extends \PHPUnit\Framework\TestCase
     /**
      * @param mixed $value
      * @param bool  $expected
-     *
-     * @dataProvider checkPresenceOfProvider
      */
+    #[DataProvider('checkPresenceOfProvider')]
     public function testCheckPresenceOf($value, $expected)
     {
         if ($expected) {
@@ -52,7 +52,7 @@ class BaseValidatorTest extends \PHPUnit\Framework\TestCase
         }
     }
 
-    public function checkPresenceOfProvider()
+    public static function checkPresenceOfProvider()
     {
         return [
             ['.', true],
@@ -75,9 +75,8 @@ class BaseValidatorTest extends \PHPUnit\Framework\TestCase
      * @param mixed $value
      * @param array $in
      * @param bool  $expected
-     *
-     * @dataProvider checkIncludedProvider
      */
+    #[DataProvider('checkIncludedProvider')]
     public function testCheckIncluded($value, $in, $expected)
     {
         if ($expected) {
@@ -87,7 +86,7 @@ class BaseValidatorTest extends \PHPUnit\Framework\TestCase
         }
     }
 
-    public function checkIncludedProvider()
+    public static function checkIncludedProvider()
     {
         return [
             [1, [1, 2], true],
@@ -103,9 +102,8 @@ class BaseValidatorTest extends \PHPUnit\Framework\TestCase
      * @param mixed $value
      * @param array $in
      * @param bool  $expected
-     *
-     * @dataProvider checkExcludedProvider
      */
+    #[DataProvider('checkExcludedProvider')]
     public function testCheckExcluded($value, $in, $expected)
     {
         if ($expected) {
@@ -115,7 +113,7 @@ class BaseValidatorTest extends \PHPUnit\Framework\TestCase
         }
     }
 
-    public function checkExcludedProvider()
+    public static function checkExcludedProvider()
     {
         return [
             [1, [1, 2], false],
@@ -131,9 +129,8 @@ class BaseValidatorTest extends \PHPUnit\Framework\TestCase
      * @param mixed $value
      * @param mixed $than
      * @param bool  $expected
-     *
-     * @dataProvider checkEqualToProvider
      */
+    #[DataProvider('checkEqualToProvider')]
     public function testCheckEqualTo($value, $than, $expected)
     {
         if ($expected) {
@@ -143,7 +140,7 @@ class BaseValidatorTest extends \PHPUnit\Framework\TestCase
         }
     }
 
-    public function checkEqualToProvider()
+    public static function checkEqualToProvider()
     {
         return [
             [1, 1, true],
@@ -159,9 +156,8 @@ class BaseValidatorTest extends \PHPUnit\Framework\TestCase
      * @param mixed $value
      * @param mixed $than
      * @param bool  $expected
-     *
-     * @dataProvider checkOtherThanProvider
      */
+    #[DataProvider('checkOtherThanProvider')]
     public function testCheckOtherThan($value, $than, $expected)
     {
         if ($expected) {
@@ -171,7 +167,7 @@ class BaseValidatorTest extends \PHPUnit\Framework\TestCase
         }
     }
 
-    public function checkOtherThanProvider()
+    public static function checkOtherThanProvider()
     {
         return [
             [1, 1, false],

@@ -1,5 +1,7 @@
 <?php
 
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use Paliari\Doctrine\Validator as V;
 
 class ValidatorTest extends \PHPUnit\Framework\TestCase
@@ -25,26 +27,37 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
      */
     private $reflection_model;
 
+    /**
+     * @var \Doctrine\ORM\EntityManagerInterface
+     */
+    private $em;
+
     public function setUp(): void
     {
+        $this->em               = EM::getEm();
         $this->model            = new MyModel();
         $this->validator        = new V($this->model);
         $this->reflection       = new ReflectionClass($this->validator);
         $this->reflection_model = new ReflectionClass($this->model);
     }
 
+    public function tearDown(): void
+    {
+        EM::setEm($this->em);
+        $this->reflection->getProperty('_validates')->setValue(null, []);
+    }
+
     /**
      * @param mixed $value
      * @param bool  $expected
-     *
-     * @dataProvider dataProviderIsBlank
      */
+    #[DataProvider('dataProviderIsBlank')]
     public function testIsBlank($value, $expected)
     {
         $this->doTestMethod('isBlank', [$value], $expected);
     }
 
-    public function dataProviderIsBlank()
+    public static function dataProviderIsBlank()
     {
         return [
             ['.', false],
@@ -66,15 +79,14 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
     /**
      * @param mixed $value
      * @param bool  $expected
-     *
-     * @dataProvider dataProviderIsInteger
      */
+    #[DataProvider('dataProviderIsInteger')]
     public function testIsInteger($value, $expected)
     {
         $this->doTestMethod('isInteger', [$value], $expected);
     }
 
-    public function dataProviderIsInteger()
+    public static function dataProviderIsInteger()
     {
         return [
             ['.', false],
@@ -98,15 +110,14 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
     /**
      * @param mixed $value
      * @param bool  $expected
-     *
-     * @dataProvider dataProviderIsNumber
      */
+    #[DataProvider('dataProviderIsNumber')]
     public function testIsNumber($value, $expected)
     {
         $this->doTestMethod('isNumber', [$value], $expected);
     }
 
-    public function dataProviderIsNumber()
+    public static function dataProviderIsNumber()
     {
         return [
             ['.', false],
@@ -128,15 +139,13 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
         ];
     }
 
-    /**
-     * @dataProvider dataProviderCheckFilterVar
-     */
+    #[DataProvider('dataProviderCheckFilterVar')]
     public function testCheckFilterVar($value, $filter, $expected)
     {
         $this->doTestMethod('checkFilterVar', [$value, $filter], $expected);
     }
 
-    public function dataProviderCheckFilterVar()
+    public static function dataProviderCheckFilterVar()
     {
         return [
             [true, 'boolean', true],
@@ -162,15 +171,13 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
         ];
     }
 
-    /**
-     * @dataProvider dataProviderComparatorThan
-     */
+    #[DataProvider('dataProviderComparatorThan')]
     public function testComparatorThan($comparator, $value, $than, $expected)
     {
         $this->doTestMethod('comparatorThan', [$comparator, $value, $than], $expected);
     }
 
-    public function dataProviderComparatorThan()
+    public static function dataProviderComparatorThan()
     {
         return [
             ['greater_than', 2, 1, true],
@@ -192,21 +199,17 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
         ];
     }
 
-    /**
-     * @dataProvider dataProviderSkipValidation
-     */
+    #[DataProvider('dataProviderSkipValidation')]
     public function testSkipValidation($field, $options, $values, $state, $expected)
     {
         foreach ($values as $k => $v) {
             $this->model->$k = $v;
         }
-        $p = $this->reflection_model->getProperty('record_state');
-        $p->setAccessible(true);
-        $p->setValue($this->model, $state);
+        $this->reflection_model->getProperty('record_state')->setValue($this->model, $state);
         $this->doTestMethod('skipValidation', [$field, $options], $expected);
     }
 
-    public function dataProviderSkipValidation()
+    public static function dataProviderSkipValidation()
     {
         return [
             ['name', [], [], V::CREATE, false],
@@ -231,9 +234,7 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
         ];
     }
 
-    /**
-     * @dataProvider dataProviderValidateOf
-     */
+    #[DataProvider('dataProviderValidateOf')]
     public function testValidateOf($method, $field, $options, $value, $expected)
     {
         $this->model->$field = $value;
@@ -241,7 +242,7 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($expected, $this->model->errors->isValid());
     }
 
-    public function dataProviderValidateOf()
+    public static function dataProviderValidateOf()
     {
         return [
             ['presenceOf', 'name', [], 'a', true],
@@ -287,6 +288,8 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
             ['formatOf', 'name', ['with' => '/\D/'], '99', false],
             ['formatOf', 'name', ['with' => '/\D/'], 'aa', true],
             ['formatOf', 'name', ['without' => 'url'], 'adfasdsa', true],
+            ['formatOf', 'name', ['with' => '/\d/'], null, false],
+            ['formatOf', 'name', ['with' => '/^$/'], null, true],
             ['numericalityOf', 'value', ['only_integer' => true], 123, true],
             ['numericalityOf', 'value', ['only_integer' => true], '123', true],
             ['numericalityOf', 'value', ['only_integer' => true], '123.0', false],
@@ -303,31 +306,55 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
         ];
     }
 
-    /**
-     * @dataProvider dataProviderUniquenessOf
-     */
+    #[DataProvider('dataProviderMessages')]
+    public function testMessages($method, $field, $options, $value, $expected)
+    {
+        $this->model->$field = $value;
+        $this->validator->$method($field, $options);
+        $this->assertSame([$field => $expected], $this->model->errors->toArray());
+    }
+
+    public static function dataProviderMessages()
+    {
+        return [
+            ['numericalityOf', 'value', ['other_than' => 0], 0, ['is invalid']],
+            ['numericalityOf', 'value', ['other_than' => 1], 1, ['is invalid']],
+            ['numericalityOf', 'value', ['other_than' => 0, 'message' => 'custom'], 0, ['custom']],
+            ['numericalityOf', 'value', ['greater_than' => 5, 'message' => 'custom %{count}'], 1, ['custom 5']],
+            ['numericalityOf', 'value', ['greater_than' => 5], 1, ['must be greater than 5']],
+            ['numericalityOf', 'value', ['greater_than' => 0], 0, ['must be greater than 0']],
+            ['numericalityOf', 'value', ['less_than' => 5], 10, ['must be less than 5']],
+            ['numericalityOf', 'value', ['equal_to' => 5], 1, ['must be equal to 5']],
+            ['numericalityOf', 'value', ['not_a_number' => 'custom nan'], 'a', ['custom nan']],
+            ['numericalityOf', 'value', ['greater_than_or_equal_to' => 0], -1, ['must be greater than or equal to 0']],
+            ['numericalityOf', 'value', ['less_than' => 0], 1, ['must be less than 0']],
+            ['numericalityOf', 'value', ['less_than_or_equal_to' => 0], 1, ['must be less than or equal to 0']],
+            ['numericalityOf', 'value', ['equal_to' => 0], 1, ['must be equal to 0']],
+            ['lengthOf', 'name', ['maximum' => 2], 'abc', ['is too long (maximum is 2 characters)']],
+            ['lengthOf', 'name', ['is' => 0], 'a', ['is the wrong length (should be 0 characters)']],
+        ];
+    }
+
+    #[DataProvider('dataProviderUniquenessOf')]
     public function testUniquenessOf($field, $options, $filters, $return, $expected)
     {
         $er = $this->getMockBuilder('\Doctrine\ORM\EntityRepository')
-                   ->disableOriginalConstructor()->setMethods(['findBy'])->getMock()
+                   ->disableOriginalConstructor()->onlyMethods(['findBy'])->getMock()
         ;
         $er->expects($this->once())->method('findBy')
            ->with($filters)
-           ->will($this->returnValue($return))
+           ->willReturn($return)
         ;
         $em = $this->getMockBuilder('\Doctrine\ORM\EntityManager')
-                   ->disableOriginalConstructor()->setMethods(['getRepository'])->getMock()
+                   ->disableOriginalConstructor()->onlyMethods(['getRepository'])->getMock()
         ;
-        $em->expects($this->once())->method('getRepository')->with('MyModel')->will($this->returnValue($er));
-        $rc = new ReflectionClass('EM');
-        $p  = $rc->getProperty('_em');
-        $p->setAccessible(true);
-        $p->setValue($em);
+        $em->expects($this->once())->method('getRepository')->with('MyModel')->willReturn($er);
+        EM::setEm($em);
         $this->validator->uniquenessOf($field, $options);
         $this->assertEquals($expected, $this->model->errors->isValid());
     }
 
-    public function dataProviderUniquenessOf()
+    public static function dataProviderUniquenessOf()
     {
         $old_model     = new MyModel();
         $old_model->id = 1;
@@ -340,16 +367,12 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
         ];
     }
 
-    /**
-     * @dataProvider dataAllValidatesOf
-     * @group        a
-     */
+    #[DataProvider('dataAllValidatesOf')]
+    #[Group('a')]
     public function testAllValidatesOf($validate_of, $options, $values, $expected)
     {
         $property = $this->reflection->getProperty('_validates');
-        $property->setAccessible(true);
-//        $property->setValue([]);
-        $property->setValue([$this->model->className() => [$validate_of => $options]]);
+        $property->setValue(null, [$this->model->className() => [$validate_of => $options]]);
         foreach ($values as $field => $value) {
             $this->model->$field = $value;
         }
@@ -364,7 +387,7 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($expected, $this->model->errors->isValid());
     }
 
-    public function dataAllValidatesOf()
+    public static function dataAllValidatesOf()
     {
         return [
             ['validates_presence_of', ['name'], [], false],
@@ -400,10 +423,7 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
 
     public function invokeProtectedMethod($method, $args)
     {
-        $method = $this->reflection->getMethod($method);
-        $method->setAccessible(true);
-
-        return $method->invokeArgs($this->validator, $args);
+        return $this->reflection->getMethod($method)->invokeArgs($this->validator, $args);
     }
 
 }

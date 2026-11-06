@@ -1,5 +1,7 @@
 <?php
 
+use PHPUnit\Framework\Attributes\DataProvider;
+
 class LengthValidatorTest extends \PHPUnit\Framework\TestCase
 {
 
@@ -7,9 +9,8 @@ class LengthValidatorTest extends \PHPUnit\Framework\TestCase
      * @param mixed $value
      * @param int   $length
      * @param bool  $expected
-     *
-     * @dataProvider checkMinimumProvider
      */
+    #[DataProvider('checkMinimumProvider')]
     public function testCheckMinimum($value, $length, $expected)
     {
         if ($expected) {
@@ -19,7 +20,7 @@ class LengthValidatorTest extends \PHPUnit\Framework\TestCase
         }
     }
 
-    public function checkMinimumProvider()
+    public static function checkMinimumProvider()
     {
         return [
             ['123', 3, true],
@@ -39,9 +40,8 @@ class LengthValidatorTest extends \PHPUnit\Framework\TestCase
      * @param mixed $value
      * @param int   $length
      * @param bool  $expected
-     *
-     * @dataProvider checkMaximumProvider
      */
+    #[DataProvider('checkMaximumProvider')]
     public function testCheckMaximum($value, $length, $expected)
     {
         if ($expected) {
@@ -51,7 +51,7 @@ class LengthValidatorTest extends \PHPUnit\Framework\TestCase
         }
     }
 
-    public function checkMaximumProvider()
+    public static function checkMaximumProvider()
     {
         return [
             ['123', 3, true],
@@ -71,9 +71,8 @@ class LengthValidatorTest extends \PHPUnit\Framework\TestCase
      * @param mixed $value
      * @param int   $length
      * @param bool  $expected
-     *
-     * @dataProvider checkEqualProvider
      */
+    #[DataProvider('checkEqualProvider')]
     public function testCheckEqual($value, $length, $expected)
     {
         if ($expected) {
@@ -83,7 +82,7 @@ class LengthValidatorTest extends \PHPUnit\Framework\TestCase
         }
     }
 
-    public function checkEqualProvider()
+    public static function checkEqualProvider()
     {
         return [
             ['123', 3, true],
@@ -114,15 +113,14 @@ class LengthValidatorTest extends \PHPUnit\Framework\TestCase
     /**
      * @param mixed $value
      * @param int   $expected
-     *
-     * @dataProvider lenProvider
      */
+    #[DataProvider('lenProvider')]
     public function testClen($value, $expected)
     {
         $this->assertEquals($expected, $this->validator()->len($value));
     }
 
-    public function lenProvider()
+    public static function lenProvider()
     {
         return [
             ['áçãé`à%@#*&!~õ', 14],

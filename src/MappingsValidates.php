@@ -3,7 +3,6 @@
 namespace Paliari\Doctrine;
 
 use Doctrine\DBAL\Types\Types;
-use Paliari\Utils\A;
 
 class MappingsValidates
 {
@@ -35,17 +34,19 @@ class MappingsValidates
     {
         $length = $numericality = $inclusion = [];
         foreach ($model_name::getEm()->getClassMetadata($model_name)->fieldMappings as $field => $map) {
-            $type = $map['type'];
-            if (!A::get($map, 'id')) {
-                if (A::get($map, 'length') && in_array($type, static::$_type_string)) {
-                    $length[$field] = ['maximum' => $map['length'], 'allow_blank' => $map['nullable']];
+            $type = static::mappingValue($map, 'type');
+            if (!static::mappingValue($map, 'id')) {
+                $nullable = (bool)static::mappingValue($map, 'nullable');
+                $max_length = static::mappingValue($map, 'length');
+                if ($max_length && in_array($type, static::$_type_string)) {
+                    $length[$field] = ['maximum' => $max_length, 'allow_blank' => $nullable];
                 }
                 $is_int = in_array($type, static::$_type_int);
                 if ($is_int || in_array($type, static::$_type_numeric)) {
-                    $numericality[$field] = ['only_integer' => $is_int, 'allow_blank' => $map['nullable']];
+                    $numericality[$field] = ['only_integer' => $is_int, 'allow_blank' => $nullable];
                 }
                 if (Types::BOOLEAN == $type) {
-                    $inclusion[$field] = ['in' => [true, false], 'allow_blank' => $map['nullable']];
+                    $inclusion[$field] = ['in' => [true, false], 'allow_blank' => $nullable];
                 }
             }
         }
@@ -54,5 +55,14 @@ class MappingsValidates
             'validates_numericality_of' => $numericality,
             'validates_inclusion_of' => $inclusion,
         ];
+    }
+
+    /**
+     * ORM 2 exposes field mappings as arrays and ORM 3 as FieldMapping objects,
+     * whose ArrayAccess is deprecated.
+     */
+    protected static function mappingValue(array|object $map, string $key): mixed
+    {
+        return is_array($map) ? ($map[$key] ?? null) : ($map->$key ?? null);
     }
 }

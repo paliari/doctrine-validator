@@ -1,12 +1,17 @@
-version: '3.5'
+x-cli: &cli
+  command: bash
+  user: '1000:1000'
+  volumes:
+    - .:/var/www/html
+    - ~/.composer:/root/.composer
+    - ~/.gitconfig:/.gitconfig
+    - ~/.gitconfig.user:/.gitconfig.user
 
 services:
   cli:
-    image: paliari/apache-php8:2.1.0-dev
-    command: bash
-    user: '1000:1000'
-    volumes:
-      - .:/var/www/html
-      - ~/.composer:/root/.composer
-      - ~/.gitconfig:/.gitconfig
-      - ~/.gitconfig.user:/.gitconfig.user
+    <<: *cli
+    image: paliari/apache-php8:2.5.0-dev
+
+  cli82:
+    <<: *cli
+    image: paliari/apache-php8:2.2.3-dev

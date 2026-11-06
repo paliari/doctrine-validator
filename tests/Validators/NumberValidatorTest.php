@@ -1,14 +1,15 @@
 <?php
 
+use PHPUnit\Framework\Attributes\DataProvider;
+
 class NumberValidatorTest extends \PHPUnit\Framework\TestCase
 {
 
     /**
      * @param mixed $value
      * @param bool  $expected
-     *
-     * @dataProvider checkIntegerProvider
      */
+    #[DataProvider('checkIntegerProvider')]
     public function testCheckInteger($value, $expected)
     {
         if ($expected) {
@@ -18,7 +19,7 @@ class NumberValidatorTest extends \PHPUnit\Framework\TestCase
         }
     }
 
-    public function checkIntegerProvider()
+    public static function checkIntegerProvider()
     {
         return [
             ['123', true],
@@ -33,9 +34,8 @@ class NumberValidatorTest extends \PHPUnit\Framework\TestCase
     /**
      * @param mixed $value
      * @param bool  $expected
-     *
-     * @dataProvider checkNumberProvider
      */
+    #[DataProvider('checkNumberProvider')]
     public function testCheckNumber($value, $expected)
     {
         if ($expected) {
@@ -45,7 +45,7 @@ class NumberValidatorTest extends \PHPUnit\Framework\TestCase
         }
     }
 
-    public function checkNumberProvider()
+    public static function checkNumberProvider()
     {
         return [
             ['123', true],
@@ -63,9 +63,8 @@ class NumberValidatorTest extends \PHPUnit\Framework\TestCase
     /**
      * @param mixed $value
      * @param bool  $expected
-     *
-     * @dataProvider checkFloatProvider
      */
+    #[DataProvider('checkFloatProvider')]
     public function testCheckFloat($value, $expected)
     {
         if ($expected) {
@@ -75,7 +74,7 @@ class NumberValidatorTest extends \PHPUnit\Framework\TestCase
         }
     }
 
-    public function checkFloatProvider()
+    public static function checkFloatProvider()
     {
         return [
             ['123', true],
@@ -94,9 +93,8 @@ class NumberValidatorTest extends \PHPUnit\Framework\TestCase
      * @param mixed $value
      * @param int   $than
      * @param bool  $expected
-     *
-     * @dataProvider checkGreaterThanProvider
      */
+    #[DataProvider('checkGreaterThanProvider')]
     public function testCheckGreaterThan($value, $than, $expected)
     {
         if ($expected) {
@@ -106,7 +104,7 @@ class NumberValidatorTest extends \PHPUnit\Framework\TestCase
         }
     }
 
-    public function checkGreaterThanProvider()
+    public static function checkGreaterThanProvider()
     {
         return [
             ['12', 10, true],
@@ -125,9 +123,8 @@ class NumberValidatorTest extends \PHPUnit\Framework\TestCase
      * @param mixed $value
      * @param int   $than
      * @param bool  $expected
-     *
-     * @dataProvider checkGreaterThanOrEqualToProvider
      */
+    #[DataProvider('checkGreaterThanOrEqualToProvider')]
     public function testCheckGreaterThanOrEqualTo($value, $than, $expected)
     {
         if ($expected) {
@@ -137,7 +134,7 @@ class NumberValidatorTest extends \PHPUnit\Framework\TestCase
         }
     }
 
-    public function checkGreaterThanOrEqualToProvider()
+    public static function checkGreaterThanOrEqualToProvider()
     {
         return [
             ['12', 10, true],
@@ -156,9 +153,8 @@ class NumberValidatorTest extends \PHPUnit\Framework\TestCase
      * @param mixed $value
      * @param int   $than
      * @param bool  $expected
-     *
-     * @dataProvider checkLessThanProvider
      */
+    #[DataProvider('checkLessThanProvider')]
     public function testCheckLessThan($value, $than, $expected)
     {
         if ($expected) {
@@ -168,7 +164,7 @@ class NumberValidatorTest extends \PHPUnit\Framework\TestCase
         }
     }
 
-    public function checkLessThanProvider()
+    public static function checkLessThanProvider()
     {
         return [
             ['12', 10, false],
@@ -187,9 +183,8 @@ class NumberValidatorTest extends \PHPUnit\Framework\TestCase
      * @param mixed $value
      * @param int   $than
      * @param bool  $expected
-     *
-     * @dataProvider checkLessThanOrEqualToProvider
      */
+    #[DataProvider('checkLessThanOrEqualToProvider')]
     public function testCheckLessThanOrEqualTo($value, $than, $expected)
     {
         if ($expected) {
@@ -199,7 +194,7 @@ class NumberValidatorTest extends \PHPUnit\Framework\TestCase
         }
     }
 
-    public function checkLessThanOrEqualToProvider()
+    public static function checkLessThanOrEqualToProvider()
     {
         return [
             ['12', 10, false],

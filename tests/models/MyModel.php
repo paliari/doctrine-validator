@@ -1,9 +1,9 @@
 <?php
 
-/**
- * @Entity
- * @Table(name="foo")
- */
+use Doctrine\ORM\Mapping as ORM;
+
+#[ORM\Entity]
+#[ORM\Table(name: 'foo')]
 class MyModel extends \AbstractModel
 {
 
@@ -12,48 +12,30 @@ class MyModel extends \AbstractModel
     ];
     protected static array $validates_custom = ['count'];
 
-    /**
-     * Primary Key column.
-     *
-     * @Id
-     * @GeneratedValue
-     * @Column(type="integer")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
     public $id;
 
-    /**
-     * @Column(type="string", length=100, unique=true, nullable=false)
-     */
+    #[ORM\Column(type: 'string', length: 100, unique: true, nullable: false)]
     public $email = '';
 
-    /**
-     * @Column(type="string", length=255, nullable=false)
-     */
+    #[ORM\Column(type: 'string', length: 255, nullable: false)]
     public $name = '';
 
-    /**
-     * @Column(type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
     public $nike_name = '';
 
-    /**
-     * @Column(type="boolean", nullable=false)
-     */
+    #[ORM\Column(type: 'boolean', nullable: false)]
     public $active;
 
-    /**
-     * @Column(type="float", nullable=false)
-     */
+    #[ORM\Column(type: 'float', nullable: false)]
     public $value;
 
-    /**
-     * @Column(type="integer", nullable=false)
-     */
+    #[ORM\Column(type: 'integer', nullable: false)]
     public $times;
 
-    /**
-     * @Column(type="integer", nullable=true)
-     */
+    #[ORM\Column(type: 'integer', nullable: true)]
     public $count;
 
     public function count()

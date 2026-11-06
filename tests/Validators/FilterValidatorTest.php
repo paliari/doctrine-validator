@@ -1,4 +1,6 @@
 <?php
+
+use PHPUnit\Framework\Attributes\DataProvider;
 use Paliari\Doctrine\Validators\FilterVarValidator as f;
 
 class FilterValidatorTest extends \PHPUnit\Framework\TestCase
@@ -8,9 +10,8 @@ class FilterValidatorTest extends \PHPUnit\Framework\TestCase
      * @param mixed $value
      * @param mixed $filter
      * @param bool  $expected
-     *
-     * @dataProvider checkProvider
      */
+    #[DataProvider('checkProvider')]
     public function testCheck($value, $filter, $expected)
     {
         if ($expected) {
@@ -20,7 +21,7 @@ class FilterValidatorTest extends \PHPUnit\Framework\TestCase
         }
     }
 
-    public function checkProvider()
+    public static function checkProvider()
     {
         return [
             [true, f::BOOLEAN, true],
@@ -50,15 +51,17 @@ class FilterValidatorTest extends \PHPUnit\Framework\TestCase
             ['127.0.0.256', f::IP, false],
             ['http://paliari.com', f::URL, true],
             ['paliari.com', f::URL, false],
+            [null, '/^$/', true],
+            [null, '/\d/', false],
+            [12, '/^\d+$/', true],
         ];
     }
 
     /**
      * @param mixed $value
      * @param bool  $expected
-     *
-     * @dataProvider checkBooleanProvider
      */
+    #[DataProvider('checkBooleanProvider')]
     public function testCheckBoolean($value, $expected)
     {
         if ($expected) {
@@ -68,7 +71,7 @@ class FilterValidatorTest extends \PHPUnit\Framework\TestCase
         }
     }
 
-    public function checkBooleanProvider()
+    public static function checkBooleanProvider()
     {
         return [
             [true, true],
@@ -86,9 +89,8 @@ class FilterValidatorTest extends \PHPUnit\Framework\TestCase
     /**
      * @param mixed $value
      * @param bool  $expected
-     *
-     * @dataProvider checkEmailProvider
      */
+    #[DataProvider('checkEmailProvider')]
     public function testCheckEmail($value, $expected)
     {
         if ($expected) {
@@ -98,7 +100,7 @@ class FilterValidatorTest extends \PHPUnit\Framework\TestCase
         }
     }
 
-    public function checkEmailProvider()
+    public static function checkEmailProvider()
     {
         return [
             ['aa@aaa.aa', true],
@@ -112,9 +114,8 @@ class FilterValidatorTest extends \PHPUnit\Framework\TestCase
     /**
      * @param mixed $value
      * @param bool  $expected
-     *
-     * @dataProvider checkFloatProvider
      */
+    #[DataProvider('checkFloatProvider')]
     public function testCheckFloat($value, $expected)
     {
         if ($expected) {
@@ -124,7 +125,7 @@ class FilterValidatorTest extends \PHPUnit\Framework\TestCase
         }
     }
 
-    public function checkFloatProvider()
+    public static function checkFloatProvider()
     {
         return [
             [0.0, true],
@@ -145,9 +146,8 @@ class FilterValidatorTest extends \PHPUnit\Framework\TestCase
     /**
      * @param mixed $value
      * @param bool  $expected
-     *
-     * @dataProvider checkIntegerProvider
      */
+    #[DataProvider('checkIntegerProvider')]
     public function testCheckInteger($value, $expected)
     {
         if ($expected) {
@@ -157,7 +157,7 @@ class FilterValidatorTest extends \PHPUnit\Framework\TestCase
         }
     }
 
-    public function checkIntegerProvider()
+    public static function checkIntegerProvider()
     {
         return [
             ['0', true],
@@ -174,9 +174,8 @@ class FilterValidatorTest extends \PHPUnit\Framework\TestCase
     /**
      * @param mixed $value
      * @param bool  $expected
-     *
-     * @dataProvider checkIpProvider
      */
+    #[DataProvider('checkIpProvider')]
     public function testCheckIp($value, $expected)
     {
         if ($expected) {
@@ -186,7 +185,7 @@ class FilterValidatorTest extends \PHPUnit\Framework\TestCase
         }
     }
 
-    public function checkIpProvider()
+    public static function checkIpProvider()
     {
         return [
             ['127.0.0.1', true],
@@ -203,9 +202,8 @@ class FilterValidatorTest extends \PHPUnit\Framework\TestCase
     /**
      * @param mixed $value
      * @param bool  $expected
-     *
-     * @dataProvider checkMacAddressProvider
      */
+    #[DataProvider('checkMacAddressProvider')]
     public function testCheckMacAddress($value, $expected)
     {
         if ($expected) {
@@ -215,7 +213,7 @@ class FilterValidatorTest extends \PHPUnit\Framework\TestCase
         }
     }
 
-    public function checkMacAddressProvider()
+    public static function checkMacAddressProvider()
     {
         return [
             ['a1:b6:7f:2d:f0:a7', true],
@@ -226,9 +224,8 @@ class FilterValidatorTest extends \PHPUnit\Framework\TestCase
     /**
      * @param mixed $value
      * @param bool  $expected
-     *
-     * @dataProvider checkUrlProvider
      */
+    #[DataProvider('checkUrlProvider')]
     public function testCheckUrl($value, $expected)
     {
         if ($expected) {
@@ -238,7 +235,7 @@ class FilterValidatorTest extends \PHPUnit\Framework\TestCase
         }
     }
 
-    public function checkUrlProvider()
+    public static function checkUrlProvider()
     {
         return [
             ['http://paliari.com', true],

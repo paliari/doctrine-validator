@@ -43,7 +43,7 @@ class ValidatorErrors
             return call_user_func(static::$custom_get_message, $key);
         }
 
-        return static::$_default_messages[$key];
+        return static::$_default_messages[$key] ?? null;
     }
 
     public function isValid(): bool

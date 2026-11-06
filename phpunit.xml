@@ -1,22 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<phpunit 
+<phpunit
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd"
+  xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
   bootstrap="tests/boot.php"
+  cacheDirectory="tmp/.phpunit.cache"
   backupGlobals="false"
   colors="true"
-  beStrictAboutCoversAnnotation="true"
   beStrictAboutOutputDuringTests="true"
-  beStrictAboutTestsThatDoNotTestAnything="true"
-  beStrictAboutTodoAnnotatedTests="true"
-  verbose="true"
+  failOnDeprecation="true"
+  failOnPhpunitDeprecation="true"
+  failOnNotice="true"
+  failOnWarning="true"
+  failOnRisky="true"
+  displayDetailsOnTestsThatTriggerDeprecations="true"
+  displayDetailsOnPhpunitDeprecations="true"
+  displayDetailsOnTestsThatTriggerNotices="true"
+  displayDetailsOnTestsThatTriggerWarnings="true"
+  displayDetailsOnTestsThatTriggerErrors="true"
 >
-  <coverage processUncoveredFiles="true">
+  <source ignoreSuppressionOfDeprecations="true">
     <include>
       <directory suffix=".php">src</directory>
     </include>
-  </coverage>
-  <testsuite name="Unit">
-    <directory suffix="Test.php">tests</directory>
-  </testsuite>
+  </source>
+  <testsuites>
+    <testsuite name="Unit">
+      <directory suffix="Test.php">tests</directory>
+    </testsuite>
+  </testsuites>
 </phpunit>

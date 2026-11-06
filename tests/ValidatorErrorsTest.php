@@ -1,5 +1,6 @@
 <?php
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class ValidatorErrorsTest extends TestCase
@@ -15,6 +16,12 @@ class ValidatorErrorsTest extends TestCase
         $this->error = new \Paliari\Doctrine\ValidatorErrors();
     }
 
+    public function testGetDefaultMessage()
+    {
+        $this->assertSame('is invalid', \Paliari\Doctrine\ValidatorErrors::getDefaultMessage('invalid'));
+        $this->assertNull(\Paliari\Doctrine\ValidatorErrors::getDefaultMessage('other_than'));
+    }
+
     public function testIsValid()
     {
         $this->assertTrue($this->error->isValid());
@@ -22,9 +29,7 @@ class ValidatorErrorsTest extends TestCase
         $this->assertFalse($this->error->isValid());
     }
 
-    /**
-     * @dataProvider addDataProvider
-     */
+    #[DataProvider('addDataProvider')]
     public function testAdd($name, $message)
     {
         $this->error->add($name, $message);
@@ -32,7 +37,7 @@ class ValidatorErrorsTest extends TestCase
         $this->assertEquals($a[$name][0], $message);
     }
 
-    public function addDataProvider()
+    public static function addDataProvider()
     {
         return [
             ['name', 'invalid'],
@@ -40,9 +45,7 @@ class ValidatorErrorsTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider addCountDataProvider
-     */
+    #[DataProvider('addCountDataProvider')]
     public function testAddCount($name, $messages, $count)
     {
         foreach ($messages as $message) {
@@ -53,7 +56,7 @@ class ValidatorErrorsTest extends TestCase
         $this->assertEquals(count($a[$name]), $count);
     }
 
-    public function addCountDataProvider()
+    public static function addCountDataProvider()
     {
         return [
             ['name', ['invalid'], 1],
