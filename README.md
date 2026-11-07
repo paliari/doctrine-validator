@@ -1,5 +1,7 @@
 # doctrine-validator
 
+Advanced model validator for Doctrine ORM, based on ActiveRecord validations.
+
 ## Requirements
 
 - PHP 8.2 to 8.5
@@ -11,20 +13,20 @@
 
 ## Configuration
 
-Include the TraitValidatorModel in a base model and declare the validations in the models that extend it.
+Include the `TraitValidatorModel` in a base model and declare the validations in the models that extend it.
 
-> The trait already declares the `validates_*` and callback properties, so redeclaring them in the same class
-> that uses the trait is a PHP fatal error. Declare them in a subclass.
+> The trait already declares the `validates_*` and callback properties as `protected static array`, so:
+> - redeclaring them in the same class that uses the trait is a PHP fatal error. Declare them in a subclass;
+> - the subclass must keep the `array` type (`protected static array $validates_presence_of`), otherwise PHP
+>   raises a fatal error (`Type of ... must be array`).
 
 ```php
-
 abstract class BaseModel implements \Paliari\Doctrine\ModelValidatorInterface
 {
     use \Paliari\Doctrine\TraitValidatorModel;
 
     /**
-     * Override the method getEm is required.
-     * You must return your EntityManager in this method
+     * Required: return your EntityManager.
      *
      * @return \Doctrine\ORM\EntityManager
      */
@@ -33,6 +35,9 @@ abstract class BaseModel implements \Paliari\Doctrine\ModelValidatorInterface
         // return EntityManager
     }
 
+    /**
+     * Required: human name of an attribute, used in the error messages (ModelException and ValidatorErrors::__toString).
+     */
     public static function humAttribute(string $name): ?string
     {
         return ucwords($name);
@@ -45,23 +50,17 @@ class YourModel extends BaseModel
 
     //... fields ...
 }
-
 ```
 
-Or you can make your model class extends from AbstractValidatorModel:
+Or you can make your model class extend `AbstractValidatorModel` (a mapped superclass that already uses the trait):
 
 ```php
-
 class YourModel extends \Paliari\Doctrine\AbstractValidatorModel
 {
+    protected static array $validates_presence_of = ['email'];
+
     //... fields ...
 
-    /**
-     * Override the method getEm is required.
-     * You must return your EntityManager in this method
-     *
-     * @return \Doctrine\ORM\EntityManager
-     */
     public static function getEM()
     {
         // return EntityManager
@@ -72,7 +71,6 @@ class YourModel extends \Paliari\Doctrine\AbstractValidatorModel
         return ucwords($name);
     }
 }
-
 ```
 
 ### Initialize validator
@@ -101,72 +99,106 @@ $model->errors = null;
 $model->isValid();      // true
 ```
 
+> `persist()` validates new records immediately (`prePersist`). Changes made to a new record between
+> `persist()` and `flush()` are not validated again.
+
+### Handling errors
+
+```php
+$model->isValid();      // bool
+$model->isValid(true);  // throws ModelException when invalid
+$model->validate();     // throws ModelException when invalid
+
+try {
+    $entityManager->persist($model);
+    $entityManager->flush();
+} catch (\Paliari\Doctrine\ModelException $e) {
+    $e->getValidatorErrors()->toArray(); // ['email' => ['is invalid']]
+    $e->getValidatorErrors()->asJson();  // ['your_model' => ['email' => ['is invalid']]]
+    $e->getMessage();                    // "Email: is invalid\n" (uses humAttribute)
+}
+```
+
+After a validation, the same errors are available in `$model->errors` (`toArray()`, `isValid()`, `add($attribute, $message)`).
+
 ## Usage
 
 ### Validators
 
-Create a `protected static` property inside your model to validate. See the available options and examples:
-
+Create a `protected static array` property inside your model to validate. Each entry is either the field name
+or the field name with its options. See the available options and examples:
 
 - **validates_presence_of**
-  - Options: `if`, `unless`, `on`
+  - Fails for `null`, `''`, whitespace-only strings and empty arrays (`'0'`, `0` and `false` are present).
   - Example:
 
     ```php
-    protected static $validates_presence_of = [
+    protected static array $validates_presence_of = [
         'email',
         'last_login' => ['on' => 'update'],
-        'nike_name' => ['unless' => 'name']
+        'nickname' => ['unless' => 'name'],
     ];
     ```
 
-- **validates_size_of** *alias to validates_length_of*
-  - Options: `minimum`, `maximum`, `in|within`
+- **validates_length_of** (alias: **validates_size_of**)
+  - Options: `minimum`, `maximum`, `is`, `in|within` (`[minimum, maximum]`)
+  - Lengths are counted with `mb_strlen` (UTF-8).
   - Example:
 
     ```php
-    protected static $validates_length_of = [
+    protected static array $validates_length_of = [
         'name' => ['minimum' => 10, 'maximum' => 100],
-        'nike_name' => ['in' => [3, 20]]
+        'nickname' => ['in' => [3, 20]],
+        'code' => ['is' => 6],
     ];
     ```
-
-    > the `maximum` option is automatically setted by the field doc block
 
 - **validates_inclusion_of**
-  - Options: `in|within`, `allow_nil`, `allow_blank`
+  - Options: `in|within`
+  - The comparison is strict (`'1'` is not included in `[1, 2]`).
   - Example:
 
     ```php
-    protected static $validates_inclusion_of = [
+    protected static array $validates_inclusion_of = [
         'type' => ['in' => [1, 2, 3, 4]],
         'value' => ['in' => [1, 2, 3, 4], 'allow_nil' => true],
-        'field_name' => ['in' => ['a', 'b', 'c'], 'allow_blank' => true]
+        'field_name' => ['in' => ['a', 'b', 'c'], 'allow_blank' => true],
     ];
     ```
 
-  > the `boolean` fields are automatically setted as `true|false`
-
 - **validates_exclusion_of**
-  - Options: `in|within`, `allow_nil`, `allow_blank`
+  - Options: `in|within`
+  - The comparison is strict.
   - Example:
 
     ```php
-    protected static $validates_exclusion_of = [
-        'field_name' => ['in' => ['a', 'b', 'c'], 'allow_blank' => true]
+    protected static array $validates_exclusion_of = [
+        'field_name' => ['in' => ['a', 'b', 'c'], 'allow_blank' => true],
     ];
     ```
 
 - **validates_format_of**
-  - Options: `with`, `without`
-    - Values: `email`, `url`, `integer`, `boolean`, `ip`, `/[0-9a-z]/`
+  - Options: `with` (must match), `without` (must not match)
+    - Values: `boolean`, `email`, `float`, `integer`, `ip`, `mac_address`, `url`, a regex (e.g. `/[0-9a-z]/`)
+      or a custom filter (see below).
   - Example:
 
     ```php
-    protected static $validates_format_of = [
+    protected static array $validates_format_of = [
         'email' => ['with' => 'email'],
         'field_url' => ['with' => 'url'],
-        'field_name' => ['without' => 'float']
+        'field_name' => ['without' => 'float'],
+        'zip_code' => ['with' => '/^\d{5}-\d{3}$/'],
+    ];
+    ```
+
+  - Custom filters receive the value and return `bool`. Register them in your bootstrap:
+
+    ```php
+    \Paliari\Doctrine\Validators\FilterVarValidator::add('even', fn($value) => 0 === $value % 2);
+
+    protected static array $validates_format_of = [
+        'quantity' => ['with' => 'even'],
     ];
     ```
 
@@ -175,9 +207,10 @@ Create a `protected static` property inside your model to validate. See the avai
   - Example:
 
     ```php
-    protected static $validates_numericality_of = [
-        'ammount' => ['greater_than' => 5],
-        'another_field' => ['only_integer' => true]
+    protected static array $validates_numericality_of = [
+        'amount' => ['greater_than' => 5],
+        'percent' => ['greater_than_or_equal_to' => 0, 'less_than_or_equal_to' => 100],
+        'another_field' => ['only_integer' => true],
     ];
     ```
 
@@ -185,132 +218,160 @@ Create a `protected static` property inside your model to validate. See the avai
     > Use the `message` option to override them (`%{count}` is replaced by the value).
 
 - **validates_uniqueness_of**
-  - Options: `scope`
+  - Options: `scope` (list of fields that must also match)
+  - Uses `getEM()->getRepository(YourModel::class)->findBy(...)` and compares the records by the `id` property,
+    so the model must have an `id` primary key.
   - Example:
 
     ```php
-    protected static $validates_uniqueness_of = [
+    protected static array $validates_uniqueness_of = [
         'email',
         'number' => ['scope' => ['year']],
     ];
     ```
 
 - **validates_custom**
+  - Model methods called during the validation. They receive the options array and add errors to `$this->errors`.
   - Example:
 
     ```php
-    protected static $validates_custom = ['yourMethodName', 'otherYourMethodName'];
+    protected static array $validates_custom = [
+        'yourMethodName',
+        'checkCanBeRemoved' => ['on' => 'remove'],
+    ];
 
-    public function yourMethodName() {
-      if ($name == 'example') {
-        $this->errors->add('name', '"name" cannot be "example"');
-      }
+    public function yourMethodName(array $options)
+    {
+        if ('example' == $this->name) {
+            $this->errors->add('name', '"name" cannot be "example"');
+        }
     }
 
-    public function otherYourMethodName() {
-      // Do something here
+    public function checkCanBeRemoved(array $options)
+    {
+        // Do something here
     }
     ```
 
+### Default options
 
-> There is also a list of default options supported by every validator: 'if', 'unless', 'on', 'allow_nil' or 'allow_blank'
+Every validator supports:
 
+- `if`: name of a model property; the validation runs only when it is truthy.
+- `unless`: name of a model property; the validation runs only when it is falsy.
+- `on`: `create`, `update`, `remove` or `save` (create and update). Default: create and update.
+  On remove, only the validations with `'on' => 'remove'` run.
+- `allow_nil`: skip the validation when the value is `null`.
+- `allow_blank`: skip the validation when the value is blank (`null`, `''`, whitespace-only, empty array).
+- `message`: custom error message.
+
+### Validations from the mapping
+
+Some validations are added automatically from the Doctrine mapping (except for the identifier):
+
+| Column type | Validation |
+|---|---|
+| `string` and `text` with `length` | `validates_length_of` with `maximum` = length |
+| `integer`, `bigint`, `smallint` | `validates_numericality_of` with `only_integer` |
+| `float`, `decimal` | `validates_numericality_of` |
+| `boolean` | `validates_inclusion_of` in `[true, false]` (strict: `0`, `1` and `'1'` are invalid) |
+
+`allow_blank` is set from the column `nullable`. The options you declare for the same field are merged with them,
+e.g. `'name' => ['minimum' => 3]` keeps the `maximum` from the mapping.
+
+### Error messages
+
+The message of an error is resolved in this order:
+
+1. the option with the error key, e.g. `'blank' => 'is required'` (not available for the numericality comparators,
+   whose option holds the value);
+2. the `message` option;
+3. the default message of the key.
+
+| Validator | Keys |
+|---|---|
+| presence | `blank` |
+| length | `too_short`, `too_long`, `wrong_length` |
+| inclusion / exclusion | `inclusion` / `exclusion` |
+| format | `invalid` |
+| numericality | `not_a_number`, `not_a_integer`, `greater_than`, `greater_than_or_equal_to`, `less_than`, `less_than_or_equal_to`, `equal_to` |
+| uniqueness | `unique` |
+
+`%{count}` is replaced by the limit in the length and numericality messages (e.g. `is too short (minimum is %{count} characters)`).
+`other_than` has no default message and uses `is invalid`.
+
+To translate the default messages, set a callable that receives the key and returns the message:
+
+```php
+\Paliari\Doctrine\ValidatorErrors::$custom_get_message = function (string $key): ?string {
+    return $translator->trans("validation.$key");
+};
+```
 
 ### Callbacks
 
-Create a `protected static` property with the callbacks inside your model. See the available options and examples:
+Create a `protected static array` property with the callbacks (model method names) inside your model:
 
-- **before_validation**
-  Execute before validation
-  - Example:
+| Property | When |
+|---|---|
+| `before_validation` | before every validation |
+| `after_validation` | after every successful validation |
+| `before_validation_on_create` | before the validation of a new record |
+| `after_validation_on_create` | after the successful validation of a new record |
+| `before_validation_on_update` | before the validation of an update |
+| `after_validation_on_update` | after the successful validation of an update |
+| `before_validation_on_remove` | before the validation of a remove |
+| `after_validation_on_remove` | after the successful validation of a remove |
 
-    ```php
-    protected static $before_validation = ['yourCallbackName'];
-
-    public function yourCallbackName() { /* Do something here */}
-    ```
-
-- **after_validation**
-  Execute after validation
-  - Example:
-
-    ```php
-    protected static $after_validation = ['anotherCallbackName'];
-    ```
-
-- **before_validation_on_create**
-  Execute before validation only create
-  - Example:
-
-    ```php
-    protected static $before_validation_on_create = ['yourCallbackName'];
-    ```
-
-- **after_validation_on_create**
-  Execute after validation only create
-  - Example:
-
-    ```php
-    protected static $after_validation_on_create = ['yourCallbackName'];
-    ```
-
-- **before_validation_on_update**
-  Execute before validation only update
-  - Example:
-
-    ```php
-    protected static $before_validation_on_update = ['yourCallbackName'];
-    ```
-
-- **after_validation_on_update**
-  Execute after validation only update
-  - Example:
-
-    ```php
-    protected static $after_validation_on_update = ['yourCallbackName'];
-    ```
-
-- **before_validation_on_remove**
-  Execute before validation only remove
-  - Example:
-
-    ```php
-    protected static $before_validation_on_remove = ['yourCallbackName'];
-    ```
-
-- **after_validation_on_remove**
-  Execute after validation only remove
-  - Example:
-
-    ```php
-    protected static $after_validation_on_remove = ['yourCallbackName'];
-    ```
-
-
-### Custom Validators
-
-Para adicionar validator customizado é só uar o método statico no model *ModelName::addCustomValidator* 
-passando como argumento um *callable* que recebe como parametro o $model.
-
-To add custom validator just use the static method in model ModelName :: addCustomValidator passing as argument a callable that takes $model as parameter.
+They run in this order: `before_validation`, `before_validation_on_<state>`, validations, `after_validation`,
+`after_validation_on_<state>`. The `after_*` callbacks don't run when the validation fails.
 
 Example:
 
 ```php
-MyModel::addCustomValidator(function($model) {
-  if ($model->isNewRecord()) {
-      if (!MyValidator::instance()->isValid($model)) {
-          foreach (MyValidator::instance()->getMessages() as $k => $item) {
-              $model->errors->add($k, $item);
-          }
-      }
-  }
+protected static array $before_validation = ['normalizeEmail'];
+protected static array $after_validation_on_create = ['generateCode'];
+
+public function normalizeEmail()
+{
+    $this->email = strtolower(trim($this->email));
+}
+
+public function generateCode()
+{
+    // Do something here
+}
+```
+
+### Custom Validators
+
+To add a custom validator, call the static method `addCustomValidator` of the model passing a `callable`
+that receives the model as parameter.
+
+> Call it in your bootstrap, before the first validation of the model. The validations of each model class
+> are cached on its first validation, so validators added later are ignored.
+
+Example:
+
+```php
+YourModel::addCustomValidator(function ($model) {
+    if ($model->isNewRecord()) {
+        if (!MyValidator::instance()->isValid($model)) {
+            foreach (MyValidator::instance()->getMessages() as $k => $item) {
+                $model->errors->add($k, $item);
+            }
+        }
+    }
 });
 
-// ou
-MyModel::addCustomValidator('MyValidator::validate');
-
+// or
+YourModel::addCustomValidator('MyValidator::validate');
 ```
+
+### Record state
+
+`$model->recordState()` returns `create`, `update` or `remove`, also available as `isNewRecord()`,
+`isUpdateRecord()` and `isRemoveRecord()`. The subscriber sets it on the Doctrine events (new models are `create`).
 
 
 ## Development
@@ -356,9 +417,20 @@ git checkout composer.lock && docker-compose -f docker-compose-cli.yml run --rm 
 
 ### Publish a new version
 
+The `version` field is part of the `composer.lock` content hash, so update the lock together with it:
+
 ```bash
-# Generate a new tag
-docker-compose -f docker-compose-cli.yml run --rm cli ./vendor/bin/bump -g --version patch|minor|major
+# Bump the version in composer.json
+docker-compose -f docker-compose-cli.yml run --rm cli ./vendor/bin/bump --version patch|minor|major
+
+# Update the composer.lock content hash
+docker-compose -f docker-compose-cli.yml run --rm cli composer update --lock
+
+# Commit and tag
+VERSION=$(php -r 'echo json_decode(file_get_contents("composer.json"))->version;')
+git add composer.json composer.lock
+git commit -m "Bumps package version"
+git tag "$VERSION"
 
 git push && git push --tags
 ```
@@ -368,4 +440,3 @@ git push && git push --tags
 
 - [Marcos Paliari](http://paliari.com.br)
 - [Daniel Fernando Lourusso](http://dflourusso.com.br)
-
