@@ -7,6 +7,8 @@ use Paliari\Doctrine\Validator as V;
 class ValidatorTest extends \PHPUnit\Framework\TestCase
 {
 
+    use ResetsStaticState;
+
     /**
      * @var V
      */
@@ -44,6 +46,7 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
     public function tearDown(): void
     {
         EM::setEm($this->em);
+        $this->restoreStatics();
         $this->reflection->getProperty('_validates')->setValue(null, []);
     }
 
@@ -231,6 +234,12 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
             ['name', ['allow_blank' => true], ['name' => 'a'], V::CREATE, false],
             ['name', ['allow_blank' => false], ['name' => null], V::CREATE, false],
             ['name', ['allow_blank' => false], ['name' => 'a'], V::CREATE, false],
+            ['name', [], [], V::REMOVE, true],
+            ['name', ['on' => V::SAVE], [], V::REMOVE, true],
+            ['name', [], [], V::UPDATE, false],
+            ['name', ['on' => V::UPDATE], [], V::UPDATE, false],
+            ['name', ['on' => V::SAVE], [], V::UPDATE, false],
+            ['name', ['on' => V::CREATE], [], V::UPDATE, true],
         ];
     }
 
@@ -255,14 +264,15 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
             ['lengthOf', 'name', ['maximum' => 2], 'aaa', false],
             ['lengthOf', 'name', ['is' => 2], 'aa', true],
             ['lengthOf', 'name', ['is' => 2], 'aaa', false],
-            ['lengthOf', 'name', ['in' => [2, 4]], 'aaa', true],
+            ['lengthOf', 'name', ['minimum' => 2, 'maximum' => 3], 'a', false],
+            ['lengthOf', 'name', ['minimum' => 2, 'maximum' => 3], 'aaaa', false],
+            ['lengthOf', 'name', ['minimum' => 2, 'maximum' => 3], 'não', true],
             ['lengthOf', 'name', ['in' => [2, 4]], 'aaa', true],
             ['lengthOf', 'name', ['in' => [2, 4]], 'aa', true],
             ['lengthOf', 'name', ['in' => [2, 4]], 'aaaa', true],
             ['lengthOf', 'name', ['in' => [2, 4]], 'a', false],
             ['lengthOf', 'name', ['in' => [2, 4]], null, false],
             ['lengthOf', 'name', ['in' => [2, 4]], 'aaaaa', false],
-            ['lengthOf', 'name', ['within' => [2, 4]], 'aaa', true],
             ['lengthOf', 'name', ['within' => [2, 4]], 'aaa', true],
             ['lengthOf', 'name', ['within' => [2, 4]], 'aa', true],
             ['lengthOf', 'name', ['within' => [2, 4]], 'aaaa', true],
@@ -275,6 +285,10 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
             ['inclusionOf', 'name', ['within' => ['b']], 'a', false],
             ['inclusionOf', 'name', ['in' => ['a']], 'a', true],
             ['inclusionOf', 'name', ['in' => ['b']], 'a', false],
+            ['inclusionOf', 'name', ['in' => [1]], 1, true],
+            ['inclusionOf', 'name', ['in' => [1]], '1', false],
+            ['inclusionOf', 'active', ['in' => [true, false]], 1, false],
+            ['exclusionOf', 'name', ['in' => [1]], '1', true],
             ['exclusionOf', 'name', ['in' => ['b']], 'a', true],
             ['exclusionOf', 'name', ['in' => ['a']], 'a', false],
             ['exclusionOf', 'name', ['within' => ['b']], 'a', true],
@@ -288,6 +302,8 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
             ['formatOf', 'name', ['with' => '/\D/'], '99', false],
             ['formatOf', 'name', ['with' => '/\D/'], 'aa', true],
             ['formatOf', 'name', ['without' => 'url'], 'adfasdsa', true],
+            ['formatOf', 'name', ['without' => 'url'], 'http://paliari.com', false],
+            ['formatOf', 'name', ['without' => '/\s/'], 'with space', false],
             ['formatOf', 'name', ['with' => '/\d/'], null, false],
             ['formatOf', 'name', ['with' => '/^$/'], null, true],
             ['numericalityOf', 'value', ['only_integer' => true], 123, true],
@@ -326,6 +342,15 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
             ['numericalityOf', 'value', ['less_than' => 5], 10, ['must be less than 5']],
             ['numericalityOf', 'value', ['equal_to' => 5], 1, ['must be equal to 5']],
             ['numericalityOf', 'value', ['not_a_number' => 'custom nan'], 'a', ['custom nan']],
+            ['numericalityOf', 'value', ['greater_than' => 1, 'less_than' => 5], 10, ['must be less than 5']],
+            ['numericalityOf', 'value', ['greater_than' => 1, 'less_than' => 5], 0, ['must be greater than 1']],
+            ['numericalityOf', 'value', ['only_integer' => true], 'a', ['is not a integer', 'is not a number']],
+            ['presenceOf', 'name', [], ' ', ["can't be blank"]],
+            ['presenceOf', 'name', ['message' => 'required'], null, ['required']],
+            ['inclusionOf', 'name', ['in' => ['a']], 'b', ['is not included in the list']],
+            ['exclusionOf', 'name', ['in' => ['a']], 'a', ['is reserved']],
+            ['formatOf', 'email', ['with' => 'email'], 'x', ['is invalid']],
+            ['lengthOf', 'name', ['minimum' => 2], 'a', ['is too short (minimum is 2 characters)']],
             ['numericalityOf', 'value', ['greater_than_or_equal_to' => 0], -1, ['must be greater than or equal to 0']],
             ['numericalityOf', 'value', ['less_than' => 0], 1, ['must be less than 0']],
             ['numericalityOf', 'value', ['less_than_or_equal_to' => 0], 1, ['must be less than or equal to 0']],
@@ -336,8 +361,9 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
     }
 
     #[DataProvider('dataProviderUniquenessOf')]
-    public function testUniquenessOf($field, $options, $filters, $return, $expected)
+    public function testUniquenessOf($field, $options, $filters, $return, $expected, $model_id = null)
     {
+        $this->model->id = $model_id;
         $er = $this->getMockBuilder('\Doctrine\ORM\EntityRepository')
                    ->disableOriginalConstructor()->onlyMethods(['findBy'])->getMock()
         ;
@@ -364,7 +390,80 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
             ['email', [], ['email' => ''], [$old_model], false],
             ['email', ['scope' => ['name']], ['email' => '', 'name' => ''], [], true],
             ['email', [], ['email' => ''], [], true],
+            ['email', [], ['email' => ''], [$old_model], true, 1],
+            ['email', [], ['email' => ''], [$old_model], false, 2],
         ];
+    }
+
+    public function testUniquenessOfMessage()
+    {
+        $old_model     = new MyModel();
+        $old_model->id = 1;
+        $er            = $this->createMock(\Doctrine\ORM\EntityRepository::class);
+        $er->method('findBy')->willReturn([$old_model]);
+        $em = $this->createMock(\Doctrine\ORM\EntityManager::class);
+        $em->method('getRepository')->willReturn($er);
+        EM::setEm($em);
+        $this->validator->uniquenessOf('email', []);
+        $this->assertSame(['email' => ['must be unique']], $this->model->errors->toArray());
+    }
+
+    public function testFormatOfWithCustomFilter()
+    {
+        $this->backupStatic(\Paliari\Doctrine\Validators\FilterVarValidator::class, '_customs');
+        \Paliari\Doctrine\Validators\FilterVarValidator::add('even', fn($value) => 0 === $value % 2);
+        $this->validator->formatOf('count', ['with' => 'even']);
+        $this->assertTrue($this->model->errors->isValid());
+        $this->model->count = 3;
+        $this->validator->formatOf('count', ['with' => 'even']);
+        $this->assertSame(['count' => ['is invalid']], $this->model->errors->toArray());
+    }
+
+    public function testMergesModelValidationsWithMappingDefaults()
+    {
+        $model     = $this->typesModel();
+        $validator = new V($model);
+        $validates = $this->reflection->getProperty('_validates')->getValue();
+        $this->assertEquals(
+            ['maximum' => 5, 'allow_blank' => false, 'minimum' => 3],
+            $validates['TypesModel']['validates_length_of']['code']
+        );
+
+        $validator->validate();
+        $this->assertTrue($model->errors->isValid());
+
+        foreach (['ab' => 'is too short (minimum is 3 characters)', 'abcdef' => 'is too long (maximum is 5 characters)'] as $code => $message) {
+            $model       = $this->typesModel();
+            $model->code = $code;
+            (new V($model))->validate();
+            $this->assertSame(['code' => [$message]], $model->errors->toArray());
+        }
+    }
+
+    public function testMappingDefaultsValidateTypes()
+    {
+        $model        = $this->typesModel();
+        $model->price = 'abc';
+        $model->small = 1.5;
+        $model->big   = 'x';
+        $model->flag  = 1;
+        (new V($model))->validate();
+        $this->assertEquals([
+            'price' => ['is not a number'],
+            'big'   => ['is not a integer', 'is not a number'],
+            'small' => ['is not a integer'],
+            'flag'  => ['is not included in the list'],
+        ], $model->errors->toArray());
+    }
+
+    private function typesModel(): TypesModel
+    {
+        $model        = new TypesModel();
+        $model->code  = 'abcd';
+        $model->price = '10.50';
+        $model->small = 1;
+
+        return $model;
     }
 
     #[DataProvider('dataAllValidatesOf')]

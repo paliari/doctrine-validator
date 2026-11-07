@@ -6,6 +6,40 @@ use Paliari\Doctrine\Validators\FilterVarValidator as f;
 class FilterValidatorTest extends \PHPUnit\Framework\TestCase
 {
 
+    use ResetsStaticState;
+
+    public function setUp(): void
+    {
+        $this->backupStatic(f::class, '_customs');
+    }
+
+    public function tearDown(): void
+    {
+        $this->restoreStatics();
+    }
+
+    public function testAddCustomFilter()
+    {
+        f::add('even', fn($value) => 0 === $value % 2);
+        $this->assertTrue($this->validator()->check(2, 'even'));
+        $this->assertFalse($this->validator()->check(3, 'even'));
+        $this->assertTrue($this->validator()->checkCustom(4, 'even'));
+    }
+
+    public function testCustomFilterOverridesRegexFallback()
+    {
+        $this->assertFalse($this->validator()->check('abc', '/\d/'));
+        f::add('/\d/', fn($value) => true);
+        $this->assertTrue($this->validator()->check('abc', '/\d/'));
+    }
+
+    public function testAddNonCallableThrows()
+    {
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('$callback not is callable!');
+        f::add('invalid', 'function_that_does_not_exist');
+    }
+
     /**
      * @param mixed $value
      * @param mixed $filter

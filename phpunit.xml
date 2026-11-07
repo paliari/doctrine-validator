@@ -6,6 +6,7 @@
   cacheDirectory="tmp/.phpunit.cache"
   backupGlobals="false"
   colors="true"
+  executionOrder="random"
   beStrictAboutOutputDuringTests="true"
   failOnDeprecation="true"
   failOnPhpunitDeprecation="true"

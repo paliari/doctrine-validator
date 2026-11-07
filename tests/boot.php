@@ -14,6 +14,7 @@ foreach (glob(__DIR__ . '/models/*.php') as $file) {
     include_once "$file";
 }
 include_once __DIR__ . '/EM.php';
+include_once __DIR__ . '/ResetsStaticState.php';
 
 function createEntityManager(): EntityManager
 {

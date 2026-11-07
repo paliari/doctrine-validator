@@ -15,3 +15,7 @@ services:
   cli82:
     <<: *cli
     image: paliari/apache-php8:2.2.3-dev
+
+  coverage:
+    <<: *cli
+    image: paliari/apache-php8:2.5.0-dev-pcov

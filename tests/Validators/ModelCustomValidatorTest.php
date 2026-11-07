@@ -5,6 +5,19 @@ use Paliari\Doctrine\Validators\ModelCustomValidator,
 class ModelCustomValidatorTest extends TestCase
 {
 
+    use ResetsStaticState;
+
+    public function setUp(): void
+    {
+        $this->backupStatic(MyModel::class, 'validates_custom');
+    }
+
+    public function tearDown(): void
+    {
+        $this->restoreStatics();
+        $this->resetValidatorCaches();
+    }
+
     public function testAddRun()
     {
         $nfe  = new MyModel();
@@ -26,7 +39,29 @@ class ModelCustomValidatorTest extends TestCase
              ->with($model)
         ;
         MyModel::addCustomValidator([$mock, 'exec']);
+        $this->assertArrayHasKey('validateModelCustom', MyModel::getValidates('validates_custom'));
         ModelCustomValidator::i()->run(MyModel::className(), $model);
+    }
+
+    public function testRunsEveryValidatorInOrder()
+    {
+        $calls = [];
+        ModelCustomValidator::i()
+            ->add('b', function () use (&$calls) {
+                $calls[] = 1;
+            })
+            ->add('b', function () use (&$calls) {
+                $calls[] = 2;
+            })
+        ;
+        ModelCustomValidator::i()->run('b', new MyModel());
+        $this->assertSame([1, 2], $calls);
+    }
+
+    public function testRunWithoutValidators()
+    {
+        $this->expectNotToPerformAssertions();
+        ModelCustomValidator::i()->run('without-validators', new MyModel());
     }
 
     protected function mock()

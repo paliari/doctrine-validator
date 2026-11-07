@@ -324,11 +324,18 @@ docker-compose -f docker-compose-cli.yml run --rm cli composer install
 ### Testing
 
 The `cli` service runs PHP 8.5 and `cli82` runs PHP 8.2 (the minimum supported version).
-The test suite fails on any deprecation, notice or warning.
+The test suite fails on any deprecation, notice or warning and runs in random order
+(reproduce a run with `--random-order-seed <seed>`).
 
 ```bash
 docker-compose -f docker-compose-cli.yml run --rm cli ./vendor/bin/phpunit
 docker-compose -f docker-compose-cli.yml run --rm cli82 ./vendor/bin/phpunit
+```
+
+### Coverage
+
+```bash
+docker-compose -f docker-compose-cli.yml run --rm coverage composer coverage
 ```
 
 ### Compatibility checks

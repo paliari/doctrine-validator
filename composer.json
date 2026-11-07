@@ -33,6 +33,7 @@
         }
     },
     "scripts": {
-        "test": "phpunit"
+        "test": "phpunit",
+        "coverage": "php -d pcov.enabled=1 -d pcov.directory=src vendor/bin/phpunit --coverage-text"
     }
 }
