@@ -84,6 +84,23 @@ $eventManager = $entityManager->getEventManager();
 $eventManager->addEventSubscriber(new \Paliari\Doctrine\ModelValidatorEventSubscriber());
 ```
 
+The subscriber validates on `prePersist`, `preUpdate` and `preRemove`. Entities that don't use the
+`TraitValidatorModel` are ignored.
+
+### Validation lifecycle
+
+The result of a validation is kept in `$model->errors` and reused until the next successful write
+(`persist`, `update` or `remove` + `flush`), so calling `$model->isValid()` before `flush()` doesn't run
+the validations and callbacks twice. To validate again manually before a write (e.g. after fixing a field),
+reset the errors:
+
+```php
+$model->isValid();      // false
+$model->email = 'fixed@mail.com';
+$model->errors = null;
+$model->isValid();      // true
+```
+
 ## Usage
 
 ### Validators
