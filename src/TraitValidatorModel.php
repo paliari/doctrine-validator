@@ -87,17 +87,17 @@ trait TraitValidatorModel
 
     public function isNewRecord(): bool
     {
-        return Validator::CREATE == $this->record_state;
+        return Validator::CREATE == $this->recordState();
     }
 
     public function isRemoveRecord(): bool
     {
-        return Validator::REMOVE == $this->record_state;
+        return Validator::REMOVE == $this->recordState();
     }
 
     public function isUpdateRecord(): bool
     {
-        return Validator::UPDATE == $this->record_state;
+        return Validator::UPDATE == $this->recordState();
     }
 
     public function setRecordState(string $recordState): void

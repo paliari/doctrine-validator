@@ -103,19 +103,22 @@ class TraitValidatorModelTest extends TestCase
     {
         $model = new CallbacksModel();
         $this->assertSame(Validator::CREATE, $model->recordState());
+        $this->assertTrue($model->isNewRecord());
         $this->assertFalse($model->isUpdateRecord());
         $this->assertFalse($model->isRemoveRecord());
-
-        $model->setRecordState(Validator::CREATE);
-        $this->assertTrue($model->isNewRecord());
 
         $model->setRecordState(Validator::UPDATE);
         $this->assertSame(Validator::UPDATE, $model->recordState());
         $this->assertTrue($model->isUpdateRecord());
+        $this->assertFalse($model->isNewRecord());
 
         $model->setRecordState(Validator::REMOVE);
         $this->assertTrue($model->isRemoveRecord());
         $this->assertFalse($model->isNewRecord());
+        $this->assertFalse($model->isUpdateRecord());
+
+        $model->setRecordState(Validator::CREATE);
+        $this->assertTrue($model->isNewRecord());
     }
 
     public function testGetValidatesAndClassName()
